@@ -3,95 +3,37 @@
 #include <iostream>
 #include <gl/glut.h>
 
-#include "mtrand.h"
 #include "simulator.h"
-
-void display()
-{
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	//glRotated(25.0, 0.0, 1.0, 0.0);
-	//glBegin(GL_POLYGON);
-	//glColor3d(1.0, 0.0, 0.0); /* 赤 */
-	//glVertex2d(-0.9, -0.9);
-	//glColor3d(0.0, 1.0, 0.0); /* 緑 */
-	//glVertex2d(0.9, -0.9);
-	//glColor3d(0.0, 0.0, 1.0); /* 青 */
-	//glVertex2d(0.9, 0.9);
-	//glColor3d(1.0, 1.0, 0.0); /* 黄 */
-	//glVertex2d(-0.9, 0.9);
-	//glEnd();
-
-	glutSwapBuffers();
-}
-
-void resize(int w, int h)
-{
-	glViewport(0, 0, w, h);			// ウィンドウ全体をビューポートに
-	glLoadIdentity();				// 変換行列の初期化
-	glOrtho(-w / 200.0, w / 200.0, -h / 200.0, h / 200.0, -1.0, 1.0);
-		//スクリーン上の表示領域をビューポートの大きさに比例させる
-
-//	glOrtho(-0.5, (GLdouble)w - 0.5, (GLdouble)h - 0.5, -0.5, -1.0, 1.0);
-		//スクリーン上の座標系をマウスの座標系に一致させる
-}
-
-
-void mouse(int button, int state, int x, int y)
-{
-	switch (button)
-	{
-		case GLUT_LEFT_BUTTON:
-			printf("left");		break;
-		case GLUT_MIDDLE_BUTTON:
-			printf("middle");	break;
-		case GLUT_RIGHT_BUTTON:
-			printf("right");	break;
-		default:				break;
-	}
-
-	printf(" button is ");
-
-	switch (state)
-	{
-		case GLUT_UP:
-			printf("up\n");		break;
-		case GLUT_DOWN:
-			printf("down\n");	break;
-		default:				break;
-	}
-
-	printf(" at (%d, %d)\n", x, y);
-}
-
-
-void keyboard(unsigned char key, int x, int y)
-{
-	switch (key) {
-//		case 'q':
-//		case 'Q':
-		case '\033':  // '\033' -> ESC
-			exit(0);
-	  default:
-			break;
-  }
-}
+#include "input.h"
+#include "mtrand.h"
 
 
 Simulator simurator;
+Input input;
 
+void Resize(int, int);
 
 void InitializeGlut(int argc, char *argv[])
 {
+	auto dispCallback = 
+		[](){
+			glClear(GL_COLOR_BUFFER_BIT);
+			simurator.Draw();
+			glutSwapBuffers();
+		};
+
+	auto mouseCallback = [](int button, int state, int x, int y){ input.ProcMouseEvent(button, state, x, y); };
+	auto kbCallback = [](unsigned char key, int x, int y){ input.ProcKbEvent(key, x, y); };
+
 	glutInitWindowPosition(100, 100);
 	glutInitWindowSize(640, 480);
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
-	glutCreateWindow("testWindow");
-	glutDisplayFunc( [](){ simurator.Draw(); } );
-	glutReshapeFunc(resize);
-	glutMouseFunc(mouse);
-	glutKeyboardFunc(keyboard);
+	glutCreateWindow(title.c_str());
+	glutDisplayFunc( dispCallback );
+	glutReshapeFunc(Resize);
+	glutMouseFunc( mouseCallback );
+	glutKeyboardFunc( kbCallback );
 	glClearColor(0.0, 0.0, 1.0, 1.0);
 }
 
@@ -119,4 +61,16 @@ int main(int argc, char *argv[])
 
 	int dummy;	std::cin >> dummy;
 
+}
+
+
+void Resize(int w, int h)
+{
+	glViewport(0, 0, w, h);			// ウィンドウ全体をビューポートに
+	glLoadIdentity();				// 変換行列の初期化
+	glOrtho(-w / 200.0, w / 200.0, -h / 200.0, h / 200.0, -1.0, 1.0);
+		//スクリーン上の表示領域をビューポートの大きさに比例させる
+
+//	glOrtho(-0.5, (GLdouble)w - 0.5, (GLdouble)h - 0.5, -0.5, -1.0, 1.0);
+		//スクリーン上の座標系をマウスの座標系に一致させる
 }

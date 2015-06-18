@@ -22,7 +22,7 @@ class Node
 
 
 // 位置指定なしで作成したノードは一様分布
-Node::Node()
+inline Node::Node()
 : pos(0, 0)
 {
 	auto rand = RandGen::unif;

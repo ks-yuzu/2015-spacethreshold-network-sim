@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include "node.h"
 
 class Simulator
@@ -12,7 +13,7 @@ class Simulator
 		virtual ~Simulator() = default;
 //		void AppnedNodes(int num);
 
-		void Draw(){ std::cout << "sim draw" << std::endl;}
+		void Draw();
 
 	private:
 		std::list<Node> nodes;		
