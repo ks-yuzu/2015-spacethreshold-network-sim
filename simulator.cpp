@@ -9,9 +9,20 @@
 //========================================
 void Simulator::Draw()
 {
-	for each (Node *pNode in nodes) { pNode->Draw(); }
+	// vertex
+	for each (Node *pNode in nodes)
+	{
+		Draw::Line( Pos(0, 0), pNode->GetPos() );
 
-	// neighbors
+		for(auto it = pNode->Neighbors().cbegin(); it != pNode->Neighbors().cend(); it++)
+		{
+			it++;
+			Draw::Line( (*it)->GetPos(), pNode->GetPos() );
+		}
+	}
+
+	// node
+	for each (Node *pNode in nodes) { pNode->Draw(); }
 }
 
 void Simulator::WindowResize(int w, int h)
@@ -47,4 +58,11 @@ void Simulator::AppnedNodes(int num)
 {
 	for(int i = 0; i < num; i++)
 		nodes.push_back( new Node() );
+}
+
+
+void Simulator::MakeVertex()
+{
+	auto it = nodes.begin();
+	( *it )->AddNeighbor( *it + 1 );
 }

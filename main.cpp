@@ -45,6 +45,8 @@ int main(int argc, char *argv[])
 	simulator.Initialize();
 	simulator.AppnedNodes(10);
 
+	simulator.MakeVertex();
+
 	simulator.MainLoop();
 }
 

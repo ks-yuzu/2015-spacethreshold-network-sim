@@ -18,7 +18,7 @@ class Simulator
 		void MainLoop();
 		void Initialize();
 		void AppnedNodes(int num);
-
+		void MakeVertex();
 
 	private:
 		std::list<Node *> nodes;		

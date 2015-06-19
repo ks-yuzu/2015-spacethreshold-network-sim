@@ -9,6 +9,11 @@ class Draw
 {
 	public:
 
+	static void Line(Pos p1, Pos p2)
+	{
+		Line(p1.x, p1.y, p2.x, p2.y);
+	}
+
 	static void Line(double x1, double y1, double x2, double y2)
 	{
 		glBegin(GL_LINES);
@@ -24,6 +29,11 @@ class Draw
 		  glVertex2d(x2, y2);
 		  glVertex2d(x3, y3);
 		glEnd();
+	}
+
+	static void Circle(Pos center, double r, bool fFill)
+	{
+		Circle(center.x, center.y, r, fFill);
 	}
 
 	static void Circle(double cx, double cy, double r, bool fFill)

@@ -17,9 +17,15 @@ class Node
 
 		void Draw();
 
+		// accessor
+		const Pos& GetPos() const { return pos; }
+
+		const std::list<Node *>& Neighbors(){ return neighbors; }
+		void AddNeighbor(Node *pNode){ neighbors.push_back(pNode); }
+
 	private:
 		Pos pos;
-		std::list<Node> neighbors;
+		std::list<Node *> neighbors;
 };
 
 
@@ -33,6 +39,6 @@ inline Node::Node()
 
 inline void Node::Draw()
 {
-	const int r = 10;
-	Draw::Circle(pos.x - r/2, pos.y - r/2, r, 1);
+	const int radius = 10;
+	Draw::Circle(pos, radius, true);
 }
