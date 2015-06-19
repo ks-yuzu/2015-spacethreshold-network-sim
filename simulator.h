@@ -6,15 +6,20 @@
 class Simulator
 {
 	public:
-		Simulator()
-		{
-			nodes.push_back( Node(10, 10) );
-		}
+		// lifecycle
+		Simulator(){}
 		virtual ~Simulator() = default;
-//		void AppnedNodes(int num);
 
+		// callback
 		void Draw();
+		void WindowResize(int, int);
+
+		// operations
+		void MainLoop();
+		void Initialize();
+		void AppnedNodes(int num);
+
 
 	private:
-		std::list<Node> nodes;		
+		std::list<Node *> nodes;		
 };

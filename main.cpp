@@ -8,39 +8,49 @@
 #include "mtrand.h"
 
 
-Simulator simurator;
+Simulator simulator;
 Input input;
-
-void Resize(int, int);
 
 void InitializeGlut(int argc, char *argv[])
 {
 	auto dispCallback = 
 		[](){
 			glClear(GL_COLOR_BUFFER_BIT);
-			simurator.Draw();
+			simulator.Draw();
 			glutSwapBuffers();
 		};
+	auto dummyCallback = [](){};
 
+	auto reshapeCallback = [](int w, int h){ simulator.WindowResize(w, h); };
 	auto mouseCallback = [](int button, int state, int x, int y){ input.ProcMouseEvent(button, state, x, y); };
 	auto kbCallback = [](unsigned char key, int x, int y){ input.ProcKbEvent(key, x, y); };
 
-	glutInitWindowPosition(100, 100);
-	glutInitWindowSize(640, 480);
+	glutInitWindowPosition(windowPos.x, windowPos.y);
+	glutInitWindowSize(windowSize.x, windowSize.y);
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
 	glutCreateWindow(title.c_str());
 	glutDisplayFunc( dispCallback );
-	glutReshapeFunc(Resize);
+	glutReshapeFunc( reshapeCallback );
 	glutMouseFunc( mouseCallback );
 	glutKeyboardFunc( kbCallback );
-	glClearColor(0.0, 0.0, 1.0, 1.0);
+	glClearColor(0, 0, 0, 1.0);
 }
 
 
 int main(int argc, char *argv[])
 {
 	InitializeGlut(argc, argv);
+
+	simulator.Initialize();
+	simulator.AppnedNodes(10);
+
+	simulator.MainLoop();
+}
+
+
+
+/*
 
 	int count[1024] = {0};
 
@@ -55,22 +65,4 @@ int main(int argc, char *argv[])
 		std::cout << std::endl;
 	}
 
-//	sim.AppnedNodes(1);
-
-	glutMainLoop();
-
-	int dummy;	std::cin >> dummy;
-
-}
-
-
-void Resize(int w, int h)
-{
-	glViewport(0, 0, w, h);			// ウィンドウ全体をビューポートに
-	glLoadIdentity();				// 変換行列の初期化
-	glOrtho(-w / 200.0, w / 200.0, -h / 200.0, h / 200.0, -1.0, 1.0);
-		//スクリーン上の表示領域をビューポートの大きさに比例させる
-
-//	glOrtho(-0.5, (GLdouble)w - 0.5, (GLdouble)h - 0.5, -0.5, -1.0, 1.0);
-		//スクリーン上の座標系をマウスの座標系に一致させる
-}
+*/
