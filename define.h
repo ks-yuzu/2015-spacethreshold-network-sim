@@ -11,7 +11,13 @@ static const Pos windowPos(30, 20);
 
 static const Pos mapSize = windowSize;
 
-static const int standardNumNode = 100;
+static const int standardNumNode = 1000;
 
 
 static const std::string pathToGnuplot = "..\\tools\\gnuplot501\\bin\\gnuplot.exe";
+
+
+
+// my math
+#define M_PI 3.14159265358979323846
+static const auto min = [](int a, int b){ return a < b ? a : b; };

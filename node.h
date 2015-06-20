@@ -51,7 +51,7 @@ inline void Node::Draw()
 {
 	const int radius = 5;
 
-	glColor3d(color.r, color.g, color.b);
+	glColor4d(color.r, color.g, color.b, 0.15);
 	Draw::Circle(pos, radius, true);
 }
 

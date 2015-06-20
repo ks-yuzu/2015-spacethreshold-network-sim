@@ -28,6 +28,7 @@ void InitializeGlut(int argc, char *argv[])
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
 	glutCreateWindow(title.c_str());
+//	glutDisplayFunc( dummyCallback );
 	glutDisplayFunc( dispCallback );
 	glutReshapeFunc( reshapeCallback );
 	glutMouseFunc( mouseCallback );
@@ -50,22 +51,3 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
-
-
-
-/*
-
-	int count[1024] = {0};
-
-	auto expRand = RandGen::exp; //w”—”¶¬‚Ìƒ‰ƒ€ƒ_
-
-	for(int i = 0; i < 1000000; i++)
-		count[(int)( expRand(1)*10 )]++;
-
-	for(int i = 0; i < 40; i++)
-	{
-		for(int j = 0; j < count[i] / 1200; j++)  std::cout << "*";
-		std::cout << std::endl;
-	}
-
-*/

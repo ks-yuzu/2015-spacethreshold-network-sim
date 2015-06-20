@@ -46,6 +46,8 @@ void Simulator::MainLoop()
 //	Log::cout.Init();
 //	Log::cout << "Log Window" << Command::endline << Command::endline; //ログウィンドウの設定とタイトル
 
+
+
 	while( fps.SetStartTime(), kb.Update() )
 	{
 		// イベント処理
@@ -56,12 +58,14 @@ void Simulator::MainLoop()
 
 
 		// 描画イベント呼び出し
-		glutPostRedisplay();	
+//		glutPostRedisplay();	
 
 		// ループ末処理
+		Monitor::mout(0) << "node : " << nodes.size() << Command::endline;
+
+		Monitor::AllWindowFlip();
 		fps.Update();
 		fps.Wait();
-		Monitor::AllWindowFlip();
 	}
 }
 
@@ -71,8 +75,29 @@ void Simulator::Initialize()
 	numNode = 0;
 	nodes.clear();
 
-	AppnedNodes(100);
-	MakeVertex();
+	AppnedNodes(standardNumNode);
+	MakeEdge();
+
+	// グラフ設定
+	gnuplot.SetLogScale(); //両対数
+	gnuplot.SetXLabel("degree");
+	gnuplot.SetYLabel("num of vertex");
+
+	std::vector<int> x(standardNumNode);
+	std::vector<int> degCount(standardNumNode);
+
+	for(int i = 0; i < standardNumNode; i++) { x[i] = i; }
+
+	for(auto it = nodes.begin(); it != nodes.end(); it++)
+	{
+		degCount[ it->Neighbors().size() ]++;
+	}
+
+//	SetRange(0, 1000, 0, 10000);
+	gnuplot.PlotXY(x, degCount);
+
+
+	// ここきれいに nodexポインタに 移動 空間 キー処理（透過度）　マルチスレッド
 }
 
 
@@ -84,20 +109,20 @@ void Simulator::AppnedNodes(int num = standardNumNode)
 }
 
 
-void Simulator::MakeVertex()
+void Simulator::MakeEdge()
 {
 	for(auto it1 = nodes.begin(); it1 != nodes.end(); it1++)
 	{
 		for(auto it2 = nodes.begin(); it2 != nodes.end(); it2++)
 		{
-			if( VertexExists(*it1, *it2) )
+			if( EdgeExists(*it1, *it2) )
 				it1->AddNeighbor( *it2 );
 		}
 	}
 }
 
 
-bool Simulator::VertexExists(const Node& n1, const Node& n2) const
+bool Simulator::EdgeExists(const Node& n1, const Node& n2) const
 {
 	// kuukann　モデル
 	return (&n1 != &n2) && (n1.Activity() + n2.Activity() > Node::maxActivity * 1.6 );

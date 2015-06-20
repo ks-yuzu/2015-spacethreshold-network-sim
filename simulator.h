@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include "node.h"
-#include "graph/pgnuplot.h"
+#include "graph/gnuplot.h"
 
 class Simulator
 {
@@ -23,13 +23,13 @@ class Simulator
 		// val
 		int numNode;
 		std::list<Node> nodes;
-		bool VertexExists(const Node&, const Node&) const;
+		bool EdgeExists(const Node&, const Node&) const;
 
 		Gnuplot gnuplot;
 
 		// operation
 		void AppnedNodes(int num);
-		void MakeVertex();
+		void MakeEdge();
 
 		void ProcInput();
 };
