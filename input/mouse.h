@@ -1,17 +1,17 @@
 #pragma once
 
 #include <iostream>
-#include <gl\glut.h>
+#include <gl/glut.h>
 
-class Input
+class Mouse
 {
 	public:
 		void ProcMouseEvent(int button, int state, int x, int y);
-		void ProcKbEvent(unsigned char key, int x, int y);
+//		void ProcKbEvent(unsigned char key, int x, int y);
 };
 
 
-void Input::ProcMouseEvent(int button, int state, int x, int y)
+inline void Mouse::ProcMouseEvent(int button, int state, int x, int y)
 {
 	switch (button)
 	{
@@ -35,17 +35,17 @@ void Input::ProcMouseEvent(int button, int state, int x, int y)
 		default:					break;
 	}
 
-	std::cout << " at (" << x << ", " << y <<")\n" << std::endl;
+	std::cout << " at (" << x << ", " << y << ")\n" << std::endl;
 }
 
-void Input::ProcKbEvent(unsigned char key, int x, int y)
-{
-	switch (key) {
-//		case 'q':
-//		case 'Q':
-		case '\033':  // '\033' -> ESC
-			exit(0);
-	  default:
-			break;
-  }
-}
+//inline void Input::ProcKbEvent(unsigned char key, int x, int y)
+//{
+//	switch (key) {
+////		case 'q':
+////		case 'Q':
+//		case '\033':  // '\033' -> ESC
+//			exit(0);
+//	  default:
+//			break;
+//  }
+//}

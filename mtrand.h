@@ -83,7 +83,8 @@ namespace RandGen
 		return dist(mt);
 	}
 
-	const auto unif = [&](double min, double max)	{ return MtUniformRand::GetInstance()(min, max);   };
+	const auto unifi = [&](int min, int max)		{ return MtUniformRand::GetInstance()(min, max);   };
+	const auto unifd = [&](double min, double max)	{ return MtUniformRand::GetInstance()(min, max);   };
 	const auto nml  = [&](double mean, double sd)	{ return MtNormalRand::GetInstance()(mean, sd);    };
 	const auto exp  = [&](double lambda)			{ return MtExponentialRand::GetInstance()(lambda); };
 
