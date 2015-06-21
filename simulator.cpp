@@ -15,16 +15,16 @@ void Simulator::Draw()
 {
 	// vertex
 	glColor4d(0.4, 0.9, 0.4, 0.2);
-	for each (Node node1 in nodes)
+	for(Node *pNode1 : nodes)
 	{
-		for each (Node *pNode2 in node1.Neighbors() )
+		for (Node *pNode2 : pNode1->Neighbors() )
 		{
-			Draw::Line( node1.GetPos(), pNode2->GetPos() );
+			Draw::Line( pNode1->GetPos(), pNode2->GetPos() );
 		}
 	}
 
 	// node
-	for each (Node node in nodes) { node.Draw(); }
+	for each (Node *pNode in nodes) { pNode->Draw(); }
 }
 
 void Simulator::WindowResize(int w, int h)
@@ -45,7 +45,6 @@ void Simulator::MainLoop()
 	FpsControl& fps = FpsControl::GetInstance();
 //	Log::cout.Init();
 //	Log::cout << "Log Window" << Command::endline << Command::endline; //ログウィンドウの設定とタイトル
-
 
 
 	while( fps.SetStartTime(), kb.Update() )
@@ -73,6 +72,7 @@ void Simulator::MainLoop()
 void Simulator::Initialize()
 {
 	numNode = 0;
+	for(Node *p : nodes){ delete p; } // ここ重い　->　別スレッドで解放、別のコンテナを確保
 	nodes.clear();
 
 	AppnedNodes(standardNumNode);
@@ -86,25 +86,23 @@ void Simulator::Initialize()
 	std::vector<int> x(standardNumNode);
 	std::vector<int> degCount(standardNumNode);
 
-//	for(int i = 0; i < standardNumNode; i++) { x[i] = i; }
-
-//	for(auto it = nodes.begin(); it != nodes.end(); it++)
-//	{
-//		degCount[ it->Neighbors().size() ]++;
-//	}
+	for(int i = 0; i < standardNumNode; i++) { x[i] = i; }
+	for(Node *pNode : nodes) { ++degCount[ pNode->Neighbors().size() ]; }
 
 //	SetRange(0, 1000, 0, 10000);
-//	gnuplot.PlotXY(x, degCount);
+	gnuplot.PlotXY(x, degCount);
 
 
-	// ここきれいに nodexポインタに 移動 空間 キー処理（透過度）　マルチスレッド
+	// ここきれいに+別プロセス 移動 空間 キー処理（透過度）　マルチスレッド
 }
 
 
 void Simulator::AppnedNodes(int num = standardNumNode)
 {
 	numNode += standardNumNode;
-	for(int i = 0; i < num; i++) { nodes.push_back( Node() ); }
+	nodes.reserve( numNode );
+
+	for(int i = 0; i < num; i++) { nodes.push_back( new Node() ); }
 }
 
 
@@ -114,7 +112,7 @@ void Simulator::MakeEdge()
 	{
 		for(auto it2 = nodes.begin(); it2 != nodes.end(); it2++)
 		{
-			if( EdgeExists(*it1, *it2) ) { it1->AddNeighbor( *it2 ); }
+			if( EdgeExists(**it1, **it2) ) { (*it1)->AddNeighbor( *it2 ); }
 		}
 	}
 }
@@ -131,6 +129,20 @@ void Simulator::ProcInput()
 {
 	Keyboard& kb = Keyboard::GetInstance();
 
-//	if( kb('I') == 1)
-		{ Initialize(); }
+	if( kb('I') == 1) { Initialize(); }
+
+	if( !kb(VK_SHIFT) )
+	{
+		const int moveDist = 20;
+		Pos move(0, 0);
+		if( kb(VK_LEFT)  ) { move += Pos( moveDist, 0); }
+		if( kb(VK_RIGHT) ) { move += Pos(-moveDist, 0); }
+		if( kb(VK_UP)    ) { move += Pos(0,  moveDist); }
+		if( kb(VK_DOWN)  ) { move += Pos(0, -moveDist); }
+		if( kb(VK_CONTROL) ) { move *= 3; }
+
+		glTranslated(move.x, move.y, 0);
+	}
+	else if( kb(VK_UP)   ) { glScaled(1.02, 1.02, 1.02); }
+	else if( kb(VK_DOWN) ) { glScaled(0.97, 0.97, 0.97); }
 }

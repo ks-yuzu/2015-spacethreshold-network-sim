@@ -25,7 +25,7 @@ class Simulator
 	private:
 		// val
 		int numNode;
-		std::list<Node> nodes;
+		std::vector<Node *> nodes;
 		bool EdgeExists(const Node&, const Node&) const;
 
 		Gnuplot gnuplot;

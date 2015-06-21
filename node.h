@@ -28,7 +28,7 @@ class Node
 
 	  // operator
 		void Draw();
-		void AddNeighbor(Node &node){ neighbors.push_back(&node); }
+		void AddNeighbor(Node *node){ neighbors.push_back(node); }
 
 	  // accessor
 		const Pos& GetPos() const { return pos; }
@@ -51,7 +51,7 @@ inline void Node::Draw()
 {
 	const int radius = 5;
 
-	glColor4d(color.r, color.g, color.b, 0.15);
+	glColor4d(color.r, color.g, color.b, 0.5);
 	Draw::Circle(pos, radius, true);
 }
 
@@ -66,7 +66,4 @@ inline void Node::AutoSetActivity()
 
 	double colorRate = fmax(0, 1 - (double)activity / maxActivity);
 	color = Hsvd2Rgbd((int)(240 * colorRate), 1, 1);
-
-//	color = Rgbd(colorRate, fmin(colorRate, 1-colorRate)*2, 1-colorRate);
-
 }

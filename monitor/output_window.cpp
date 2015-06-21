@@ -8,7 +8,7 @@
 #include "output_data.h"
 
 
-const std::string OutputWindow::dispConsole = "OutputWindow.exe /D";
+const std::string OutputWindow::dispConsole = "..\\tools\\OutputWindow.exe /D";
 
 const WORD OutputWindow::colors[] = {
 		FOREGROUND_RED   | FOREGROUND_INTENSITY,						//DUMMY
@@ -74,6 +74,7 @@ void OutputWindow::Init()
 	StartProcess();
 }
 
+#include <functional>
 
 bool OutputWindow::StartProcess()
 {
@@ -114,10 +115,10 @@ unsigned int __stdcall OutputWindow::TProcess()
 	assert( CreateProcess(NULL, (LPSTR)commandLine.c_str(), NULL, NULL, TRUE, CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP, NULL, NULL, &si, &pi) );
 //	procGroupId = pi.dwProcessId;
 
-	// Set child process handle to cause threads to exit.
+	// Set child process handle to eixt threads
 	hChildProcess = pi.hProcess;
 
-	// Close any unnecessary handles.
+	// Close unnecessary handles.
 	CloseHandle(pi.hThread);
 
 	// Close pipe handles (do not continue to modify the parent)

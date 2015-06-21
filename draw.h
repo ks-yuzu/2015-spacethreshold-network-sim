@@ -31,7 +31,7 @@ class Draw
 		glEnd();
 	}
 
-	static void Circle(Pos center, double r, bool fFill)
+	inline static void Circle(Pos center, double r, bool fFill)
 	{
 		Circle(center.x, center.y, r, fFill);
 	}
@@ -40,16 +40,19 @@ class Draw
 	{
 		// ìhÇËÇ¬Ç‘Çµê›íË
 		std::function<void(double, double, double, double, double, double)> drawLine =
-			[](double cx, double cy, double rx1, double ry1, double rx2, double ry2){ Line(cx + rx1, cy + ry1, cx + rx2, cy + ry2); };
+//		auto drawLine =
+			[](double cx, double cy, double rx1, double ry1, double rx2, double ry2){ };//Line(cx + rx1, cy + ry1, cx + rx2, cy + ry2); };
 		std::function<void(double, double, double, double, double, double)> drawTriangle =
+//		auto drawTriangle =
 			[](double cx, double cy, double rx1, double ry1, double rx2, double ry2){ Triangle(cx + rx1, cy + ry1, cx + rx2, cy + ry2, cx, cy); };
 
 		auto drawMethod = fFill ? drawTriangle : drawLine;
 
 		// ï`âÊèàóù
-		for(double theta1 = 0; theta1 < 360.0; theta1 += 1.0)
+		const double dt = 12.0;
+		for(double theta1 = 0; theta1 < 360.0; theta1 += dt)
 		{
-			double theta2 = theta1 + 10.0;
+			double theta2 = theta1 + dt;
 			
 			double thetaRad1 = theta1 / 180.0 * M_PI;
 			double thetaRad2 = theta2 / 180.0 * M_PI;
