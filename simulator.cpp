@@ -58,7 +58,7 @@ void Simulator::MainLoop()
 
 
 		// 描画イベント呼び出し
-//		glutPostRedisplay();	
+		glutPostRedisplay();	
 
 		// ループ末処理
 		Monitor::mout(0) << "node : " << nodes.size() << Command::endline;
@@ -86,15 +86,15 @@ void Simulator::Initialize()
 	std::vector<int> x(standardNumNode);
 	std::vector<int> degCount(standardNumNode);
 
-	for(int i = 0; i < standardNumNode; i++) { x[i] = i; }
+//	for(int i = 0; i < standardNumNode; i++) { x[i] = i; }
 
-	for(auto it = nodes.begin(); it != nodes.end(); it++)
-	{
-		degCount[ it->Neighbors().size() ]++;
-	}
+//	for(auto it = nodes.begin(); it != nodes.end(); it++)
+//	{
+//		degCount[ it->Neighbors().size() ]++;
+//	}
 
 //	SetRange(0, 1000, 0, 10000);
-	gnuplot.PlotXY(x, degCount);
+//	gnuplot.PlotXY(x, degCount);
 
 
 	// ここきれいに nodexポインタに 移動 空間 キー処理（透過度）　マルチスレッド
@@ -104,8 +104,7 @@ void Simulator::Initialize()
 void Simulator::AppnedNodes(int num = standardNumNode)
 {
 	numNode += standardNumNode;
-	for(int i = 0; i < num; i++)
-		nodes.push_back( Node() );
+	for(int i = 0; i < num; i++) { nodes.push_back( Node() ); }
 }
 
 
@@ -115,17 +114,16 @@ void Simulator::MakeEdge()
 	{
 		for(auto it2 = nodes.begin(); it2 != nodes.end(); it2++)
 		{
-			if( EdgeExists(*it1, *it2) )
-				it1->AddNeighbor( *it2 );
+			if( EdgeExists(*it1, *it2) ) { it1->AddNeighbor( *it2 ); }
 		}
 	}
 }
 
 
-bool Simulator::EdgeExists(const Node& n1, const Node& n2) const
+inline bool Simulator::EdgeExists(const Node& n1, const Node& n2) const
 {
 	// kuukann　モデル
-	return (&n1 != &n2) && (n1.Activity() + n2.Activity() > Node::maxActivity * 1.6 );
+	return (&n1 != &n2) && (n1.Activity() + n2.Activity() > Node::maxActivity * 2 );
 }
 
 
@@ -133,5 +131,6 @@ void Simulator::ProcInput()
 {
 	Keyboard& kb = Keyboard::GetInstance();
 
-	if( kb('I') % 30 == 1) { Initialize(); }
+//	if( kb('I') == 1)
+		{ Initialize(); }
 }

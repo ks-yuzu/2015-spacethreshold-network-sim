@@ -4,6 +4,9 @@
 #include "node.h"
 #include "graph/gnuplot.h"
 
+
+#include <vector>
+
 class Simulator
 {
 	public:

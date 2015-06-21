@@ -11,7 +11,7 @@ static const Pos windowPos(30, 20);
 
 static const Pos mapSize = windowSize;
 
-static const int standardNumNode = 1000;
+static const int standardNumNode = 300;
 
 
 static const std::string pathToGnuplot = "..\\tools\\gnuplot501\\bin\\gnuplot.exe";

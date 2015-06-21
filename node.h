@@ -32,7 +32,7 @@ class Node
 
 	  // accessor
 		const Pos& GetPos() const { return pos; }
-		const std::list<Node*> &Neighbors() const { return neighbors; }
+		const std::list<Node*>& Neighbors() const { return neighbors; }
 		const int Activity() const { return activity; };
 
 	private:
