@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <thread>
 #include <gl/glut.h>	
 #include <gl/freeglut_ext.h>
 #include "define.h"
@@ -15,7 +17,7 @@ void Simulator::Draw()
 {
 	// vertex
 	glColor4d(0.4, 0.9, 0.4, 0.2);
-	for(Node *pNode1 : nodes)
+	for(Node *pNode1 : *pNodes)
 	{
 		for (Node *pNode2 : pNode1->Neighbors() )
 		{
@@ -24,14 +26,14 @@ void Simulator::Draw()
 	}
 
 	// node
-	for each (Node *pNode in nodes) { pNode->Draw(); }
+	for each (Node *pNode in *pNodes) { pNode->Draw(); }
 }
 
 void Simulator::WindowResize(int w, int h)
 {
 	glViewport(0, 0, w, h);													// ウィンドウ全体をビューポートに
 	glLoadIdentity();														// 変換行列の初期化
-	glOrtho(-0.5, (GLdouble)w - 0.5, (GLdouble)h - 0.5, -0.5, -1.0, 1.0);	//スクリーン上の座標系をマウスの座標系に一致させる
+	glOrtho(-0.5, (GLdouble)w - 0.5, (GLdouble)h - 0.5, -0.5, -1.0, 1.0);	// スクリーン上の座標系をマウスの座標系に一致させる
 }
 
 
@@ -60,7 +62,7 @@ void Simulator::MainLoop()
 		glutPostRedisplay();	
 
 		// ループ末処理
-		Monitor::mout(0) << "node : " << nodes.size() << Command::endline;
+		Monitor::mout(0) << "node : " << pNodes->size() << Command::endline;
 
 		Monitor::AllWindowFlip();
 		fps.Update();
@@ -68,13 +70,24 @@ void Simulator::MainLoop()
 	}
 }
 
-
 void Simulator::Initialize()
 {
 	numNode = 0;
-	for(Node *p : nodes){ delete p; } // ここ重い　->　別スレッドで解放、別のコンテナを確保
-	nodes.clear();
 
+	if( pNodes != nullptr )
+	{
+		auto deleteNodeVector =
+			[](std::vector<Node *> *pNodes)
+			{
+				for(Node *p : *pNodes){ delete p; }
+				delete pNodes;
+			};
+
+		std::thread delNodes(deleteNodeVector, pNodes);
+		delNodes.detach();
+	}
+
+	pNodes = new std::vector<Node *>;
 	AppnedNodes(standardNumNode);
 	MakeEdge();
 
@@ -87,7 +100,7 @@ void Simulator::Initialize()
 	std::vector<int> degCount(standardNumNode);
 
 	for(int i = 0; i < standardNumNode; i++) { x[i] = i; }
-	for(Node *pNode : nodes) { ++degCount[ pNode->Neighbors().size() ]; }
+	for(Node *pNode : *pNodes) { ++degCount[ pNode->Neighbors().size() ]; }
 
 //	SetRange(0, 1000, 0, 10000);
 	gnuplot.PlotXY(x, degCount);
@@ -97,22 +110,26 @@ void Simulator::Initialize()
 }
 
 
-void Simulator::AppnedNodes(int num = standardNumNode)
+void Simulator::AppnedNodes(int num)
 {
 	numNode += standardNumNode;
-	nodes.reserve( numNode );
+	pNodes->reserve( numNode );
 
-	for(int i = 0; i < num; i++) { nodes.push_back( new Node() ); }
+	for(int i = 0; i < num; i++) { pNodes->push_back( new Node() ); }
+
+	std::sort(pNodes->begin(), pNodes->end(), [](Node *n1, Node *n2){return n1->Activity() < n2->Activity();});
 }
 
 
 void Simulator::MakeEdge()
 {
-	for(auto it1 = nodes.begin(); it1 != nodes.end(); it1++)
+	int count = 0;
+	for(Node *n1 : *pNodes)
 	{
-		for(auto it2 = nodes.begin(); it2 != nodes.end(); it2++)
+		for(Node *n2 : *pNodes)
 		{
-			if( EdgeExists(**it1, **it2) ) { (*it1)->AddNeighbor( *it2 ); }
+			if( EdgeExists(*n1, *n2) ) { n1->AddNeighbor( n2 ); }
+			count++;
 		}
 	}
 }

@@ -25,13 +25,13 @@ class Simulator
 	private:
 		// val
 		int numNode;
-		std::vector<Node *> nodes;
+		std::vector<Node *> *pNodes;
 		bool EdgeExists(const Node&, const Node&) const;
 
 		Gnuplot gnuplot;
 
 		// operation
-		void AppnedNodes(int num);
+		void AppnedNodes(int num = standardNumNode);
 		void MakeEdge();
 
 		void ProcInput();
