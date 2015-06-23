@@ -60,7 +60,7 @@ void Simulator::MainLoop()
 
 
 		// 描画イベント呼び出し
-//		glutPostRedisplay();	
+		glutPostRedisplay();	
 
 		// ループ末処理
 		Monitor::mout(0) << "node : " << pNodes->size() << Command::endline;
@@ -95,6 +95,7 @@ void Simulator::Initialize()
 
 //	SetRange(0, 1000, 0, 10000);
 	gnuplot.PlotXY(x, degCount);
+	glutPostRedisplay();	
 
 
 	// ここきれいに+別プロセス 移動 空間 キー処理（透過度）　マルチスレッド
@@ -137,8 +138,8 @@ void Simulator::ProcInput()
 {
 	Keyboard& kb = Keyboard::GetInstance();
 
-//	if( kb('I') == 1) 
-	{ Initialize(); }
+	if( kb('I') == 1) 
+		{ Initialize(); }
 
 	if( !kb(VK_SHIFT) )
 	{
