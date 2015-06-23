@@ -87,7 +87,10 @@ void Gnuplot::SetGrid(const bool fEnable)
 
 void Gnuplot::PlotXY(const std::vector<int>& x, const std::vector<int>& y)
 {
+	std::stringstream buf;
 	command() << "plot '-'" << "with points" << "pointtype 1" << "title \"test\"" << endline;
+//	command() << buf.str();
+//	Execute();
 
 	int last = min( x.size(), y.size() );
 	for(int i = 0; i < last; i++)
@@ -104,43 +107,17 @@ void Gnuplot::PlotXY(const std::vector<int>& x, const std::vector<int>& y)
 
 void Gnuplot::Reset(){ command() << "reset" << endline; }
 
-
+void Gnuplot::Execute()
+{
+	fprintf(fp, buf.str().c_str());
+	buf.str("");
+	buf.clear(std::stringstream::goodbit);
+}
 
 //===================================
 //              PRIVETE
 //===================================
 
 const std::string Gnuplot::endline = "\n";
-
-
-
-
-
-
-//===================================
-//              TEST
-//===================================
-static const int NX = 40;
-
-void Gnuplot::Test()
-{
-	/* ---- データ作成 ---- */
-	std::vector<int> x(NX), y(NX);
-	x[0] = 1;
-	y[0] = 10000;
-	for(int i = 1; i < NX; i++)
-	{
-		x[i] = x[i-1] * 2;
-		y[i] = (int)(y[i-1] / 1.2);
-	}
-
-	/* ---- グラフ作成 ---- */
-	SetLogScale();
-//	SetRange(0, 1000, 0, 10000);
-	SetXLabel("testx");
-	SetYLabel("testy");
-
-	PlotXY(x, y);
-}
 
 

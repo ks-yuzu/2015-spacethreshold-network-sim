@@ -9,6 +9,7 @@
 #include "input/key.h"
 #include "monitor/log_window.h"
 #include "monitor/monitor_window.h"
+#include "deleter.h"
 
 //========================================
 //              callback
@@ -59,7 +60,7 @@ void Simulator::MainLoop()
 
 
 		// 描画イベント呼び出し
-		glutPostRedisplay();	
+//		glutPostRedisplay();	
 
 		// ループ末処理
 		Monitor::mout(0) << "node : " << pNodes->size() << Command::endline;
@@ -74,18 +75,8 @@ void Simulator::Initialize()
 {
 	numNode = 0;
 
-	if( pNodes != nullptr )
-	{
-		auto deleteNodeVector =
-			[](std::vector<Node *> *pNodes)
-			{
-				for(Node *p : *pNodes){ delete p; }
-				delete pNodes;
-			};
-
-		std::thread delNodes(deleteNodeVector, pNodes);
-		delNodes.detach();
-	}
+	// 大量のノード解放は重いので別スレッドで解放
+	if( pNodes != nullptr ) { Deleter<Node> deleter(pNodes); }
 
 	pNodes = new std::vector<Node *>;
 	AppnedNodes(standardNumNode);
@@ -146,7 +137,8 @@ void Simulator::ProcInput()
 {
 	Keyboard& kb = Keyboard::GetInstance();
 
-	if( kb('I') == 1) { Initialize(); }
+//	if( kb('I') == 1) 
+	{ Initialize(); }
 
 	if( !kb(VK_SHIFT) )
 	{

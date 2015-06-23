@@ -35,12 +35,7 @@ class Gnuplot
 
 		void PlotXY(const std::vector<int>& x, const std::vector<int>& y);
 		void Reset();
-
-
-
-		void Test();
-
-
+		void Execute();
 
 	private:
 		// const
@@ -77,12 +72,7 @@ inline Gnuplot& Gnuplot::operator<< <std::string>(std::string val)
 {
 	buf << val << " ";
 
-	if( val == Gnuplot::endline )
-	{
-		fprintf(fp, buf.str().c_str());
-		buf.str("");
-		buf.clear(std::stringstream::goodbit);
-	}
+	if( val == Gnuplot::endline ) { Execute(); }
 
 	return *this;
 }
