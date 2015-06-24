@@ -48,7 +48,7 @@ class Gnuplot
 		// operation
 		Gnuplot& command() { return *this; };
 
-		// val
+		// variable
 		FILE *fp;
 		std::stringstream buf;
 

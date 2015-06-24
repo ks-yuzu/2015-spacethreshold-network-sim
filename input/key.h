@@ -1,6 +1,7 @@
 #pragma once
 #pragma warning (disable : 4305)
 
+#include <array>
 #include <Windows.h>
 
 class Keyboard
@@ -21,8 +22,8 @@ class Keyboard
 
 		bool Update()
 		{
-			BYTE keybuf[256];
-			if( !GetKeyboardState(keybuf) )	return -1;
+			std::array<BYTE, 256> keybuf;
+			if( !GetKeyboardState(keybuf.data()) )	return -1;
 
 			for(int i = 0; i < 256; i++)
 				putKeyTime[i] =  ( keybuf[i] & 0x80 ) ? putKeyTime[i] +1 : 0;

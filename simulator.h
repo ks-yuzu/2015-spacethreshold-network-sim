@@ -11,7 +11,7 @@ class Simulator
 {
 	public:
 		// lifecycle
-		Simulator(){}
+		Simulator() : drawPos(0, 0), drawScale(1.0) {}
 		virtual ~Simulator() = default;
 
 		// callback
@@ -23,10 +23,14 @@ class Simulator
 		void Initialize();
 
 	private:
-		// val
+		// variable
 		int numNode;
+		int numLink;
 		std::vector<Node *> *pNodes;
 		bool EdgeExists(const Node&, const Node&) const;
+
+		Pos drawPos;
+		double drawScale;
 
 		Gnuplot gnuplot;
 

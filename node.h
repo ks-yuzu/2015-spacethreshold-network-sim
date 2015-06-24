@@ -27,16 +27,18 @@ class Node
 		static const int minActivity = 0;
 		static const int threshold = maxActivity * 2;
 	  // operator
-		void Draw();
+		void Draw() const;
 
 	  // accessor
 		const Pos& GetPos() const { return pos; }
 		const int Activity() const { return activity; };
 		const std::vector<Node *>::iterator& LeastNeighbor() const { return leastNeighbor; }
 		void LeastNeighbor(std::vector<Node *>::iterator it) { leastNeighbor = it; }
+		int Degree() const { return degree; }
+		void Degree(int adeg) { degree = adeg; }
 
 	private:
-	  // val
+	  // variable
 		Pos pos;
 		int degree;
 		int activity;
@@ -48,7 +50,7 @@ class Node
 };
 
 
-inline void Node::Draw()
+inline void Node::Draw() const
 {
 	const int radius = 5;
 

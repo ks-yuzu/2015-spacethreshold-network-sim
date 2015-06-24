@@ -11,23 +11,49 @@
 #include "monitor/monitor_window.h"
 #include "deleter.h"
 
+
+// 二分探索
+std::vector<Node *>::iterator BinarySearch_Lower(const std::vector<Node *>::iterator& iFirst, const std::vector<Node *>::iterator& iLast, int reqiredActivity)
+{
+	// firstとlastの差で一致判定（STL的処理）
+	auto diff = std::distance( iFirst, iLast );  // std::iterator_traits< std::vector<Node *>::iterator >::difference_type
+	if ( diff == 0 ) return( iFirst );
+
+	// 中央の位置を求める（STL的処理）
+	std::vector<Node *>::iterator iMiddle = iFirst;
+	std::advance( iMiddle, diff / 2 );
+
+	if( reqiredActivity > (*iMiddle)->Activity() )
+	{
+		++iMiddle;
+		return BinarySearch_Lower(iMiddle,  iLast, reqiredActivity);
+	}
+	else
+	{
+		return BinarySearch_Lower(iFirst, iMiddle, reqiredActivity);
+	}
+}
+
+
 //========================================
 //              callback
 //========================================
 void Simulator::Draw()
 {
-	// vertex
+  // vertex
 	glColor4d(0.4, 0.9, 0.4, 0.2);
+
+	// i : iterator,  p : pointer
+	auto ipEnd = std::end(*pNodes);
 	for(Node *pNode : *pNodes)
 	{
-		// i : iterator,  p : pointer
-		for(auto ipNeighbor = pNode->LeastNeighbor(), ipEnd = pNodes->end(); ipNeighbor != ipEnd; ++ipNeighbor )
+		for(auto ipNeighbor = pNode->LeastNeighbor(); ipNeighbor != ipEnd; ++ipNeighbor )
 		{
 			Draw::Line( pNode->GetPos(), (*ipNeighbor)->GetPos() );
 		}
 	}
 
-	// node
+  // node
 	for each (Node *pNode in *pNodes) { pNode->Draw(); }
 }
 
@@ -63,7 +89,13 @@ void Simulator::MainLoop()
 		glutPostRedisplay();	
 
 		// ループ末処理
-		Monitor::mout(0) << "node : " << pNodes->size() << Command::endline;
+		Monitor::mout(0) << Command::endline;
+		Monitor::mout(0) << "node  : " << numNode << Command::endline;
+		Monitor::mout(0) << "link  : " << numLink << Command::endline;
+
+		Monitor::mout(0) << Command::endline;
+		Monitor::mout(0) << "pos   : " << drawPos << Command::endline;
+		Monitor::mout(0) << "scale : " << drawScale << Command::endline;
 
 		Monitor::AllWindowFlip();
 		fps.Update();
@@ -91,7 +123,7 @@ void Simulator::Initialize()
 	std::vector<int> degCount(standardNumNode);
 
 	for(int i = 0; i < standardNumNode; i++) { x[i] = i; }
-//	for(Node *pNode : *pNodes) { ++degCount[ pNode->Neighbors().size() ]; }
+//	for(Node *pNode : *pNodes) { ++degCount[ pNode->Degree() ]; }
 
 //	SetRange(0, 1000, 0, 10000);
 //	gnuplot.PlotXY(x, degCount);
@@ -106,41 +138,26 @@ void Simulator::AppnedNodes(int num)
 
 	for(int i = 0; i < num; i++) { pNodes->push_back( new Node() ); }
 
-	std::sort(pNodes->begin(), pNodes->end(), [](Node *n1, Node *n2){return n1->Activity() < n2->Activity();});
-}
-
-
-std::vector<Node *>::iterator BinarySearch_Lower(std::vector<Node *>::iterator first, std::vector<Node *>::iterator last, int reqiredActivity)
-{
-	// first と last の差を求める
-	std::iterator_traits< std::vector<Node *>::iterator >::difference_type diff = std::distance( first, last );
-	if ( diff == 0 ) return( first );
-
-	// 中央の位置を求める
-	std::vector<Node *>::iterator middle = first;
-	std::advance( middle, diff / 2 );
-
-	if( reqiredActivity > (*middle)->Activity() )
-	{
-		++middle;
-		return BinarySearch_Lower(middle,  last, reqiredActivity);
-	} else {
-		return BinarySearch_Lower(first, middle, reqiredActivity);
-	}
+	std::sort(std::begin(*pNodes), std::end(*pNodes), [](Node *n1, Node *n2){ return n1->Activity() < n2->Activity(); });
 }
 
 
 void Simulator::GenerateLink()
 {
-	// 二分探索に変更 leastNeighbor
+	numLink = 0;
 
-	for(Node *node : *pNodes)
+	// 探索対象の先頭, 末尾イテレータを予め取得（速度重視）
+	auto first = std::begin(*pNodes), last = std::end(*pNodes);
+
+	for(auto iNode = first; iNode != last; ++iNode)
 	{
-		std::vector<Node *>::iterator first = pNodes->begin(), last = pNodes->end();
-		node->LeastNeighbor( BinarySearch_Lower(first, last, Node::threshold - node->Activity()) );
-	}	
+		// 隣接点の中で最小Activityのノードを二分探索
+		(*iNode)->LeastNeighbor( BinarySearch_Lower(first, last, Node::threshold - (*iNode)->Activity()) );
 
-//	int degree = ;
+		int deg = std::distance(iNode, (*iNode)->LeastNeighbor()) + 1;
+		(*iNode)->Degree(deg);
+		numLink += deg; // 合計
+	}	
 }
 
 
@@ -161,8 +178,9 @@ void Simulator::ProcInput()
 		if( kb(VK_DOWN)  ) { move += Pos(0, -moveDist); }
 		if( kb(VK_CONTROL) ) { move *= 3; }
 
+		drawPos -= move;
 		glTranslated(move.x, move.y, 0);
 	}
-	else if( kb(VK_UP)   ) { glScaled(1.02, 1.02, 1.02); }
-	else if( kb(VK_DOWN) ) { glScaled(0.97, 0.97, 0.97); }
+	else if( kb(VK_UP)   ) { drawScale *= 1.02; glScaled(1.02, 1.02, 1.02); }
+	else if( kb(VK_DOWN) ) { drawScale *= 0.97; glScaled(0.97, 0.97, 0.97); }
 }

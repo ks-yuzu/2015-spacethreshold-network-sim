@@ -115,16 +115,14 @@ unsigned int __stdcall OutputWindow::TProcess()
 	assert( CreateProcess(NULL, (LPSTR)commandLine.c_str(), NULL, NULL, TRUE, CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP, NULL, NULL, &si, &pi) );
 //	procGroupId = pi.dwProcessId;
 
-	// Set child process handle to eixt threads
+	// スレッド終了のために、子プロセスのハンドルを保存しておく
 	hChildProcess = pi.hProcess;
 
-	// Close unnecessary handles.
+	// 必要のないハンドルは閉じておく
 	CloseHandle(pi.hThread);
 
-	// Close pipe handles (do not continue to modify the parent)
-	// Need to make sure that no handles to the write end of the output pipe are maintained in this process
-	// or else the pipe will not close when the child process exits
-	// and the ReadFile will hang.
+	// 親プロセスのread側のハンドルは 必ず 閉じる必要がある。
+	// これをしておかないと、子プロセスが終了した時に、パイプが閉じれなくなる
 	CloseHandle(readPipe);
 	readPipe = nullptr;
 

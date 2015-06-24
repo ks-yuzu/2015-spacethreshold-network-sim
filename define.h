@@ -11,7 +11,7 @@ static const Pos windowPos(30, 20);
 
 
 // ----- Simulator -----
-static const int standardNumNode = 5000;
+static const int standardNumNode = 10000;
 static const Pos mapSize = Pos(standardNumNode * 2, standardNumNode * 2);
 
 

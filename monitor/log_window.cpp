@@ -2,7 +2,7 @@
 #include "log_window.h"
 
 
-// instance of static val
+// instance of static variable
 const std::string Log::logConsole  = "OutputWindow.exe /L";
 Log Log::instance;
 
