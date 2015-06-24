@@ -38,34 +38,36 @@ class Draw
 
 	static void Circle(double cx, double cy, double r, bool fFill)
 	{
-		// ìhÇËÇ¬Ç‘Çµê›íË
-		std::function<void(double, double, double, double, double, double)> drawLine =
-//		auto drawLine =
-			[](double cx, double cy, double rx1, double ry1, double rx2, double ry2){ };//Line(cx + rx1, cy + ry1, cx + rx2, cy + ry2); };
-		std::function<void(double, double, double, double, double, double)> drawTriangle =
-//		auto drawTriangle =
-			[](double cx, double cy, double rx1, double ry1, double rx2, double ry2){ Triangle(cx + rx1, cy + ry1, cx + rx2, cy + ry2, cx, cy); };
+		//// ìhÇËÇ¬Ç‘Çµê›íË
+		//std::function<void(double, double, double, double, double, double)> drawLine =
+		//	[](double cx, double cy, double rx1, double ry1, double rx2, double ry2){ Line(cx + rx1, cy + ry1, cx + rx2, cy + ry2); };
+		//std::function<void(double, double, double, double, double, double)> drawTriangle =
+		//	[](double cx, double cy, double rx1, double ry1, double rx2, double ry2){ Triangle(cx + rx1, cy + ry1, cx + rx2, cy + ry2, cx, cy); };
 
-		auto drawMethod = fFill ? drawTriangle : drawLine;
+		//auto drawMethod = fFill ? drawTriangle : drawLine;
 
 		// ï`âÊèàóù
-		const double dt = 12.0;
-		for(double theta1 = 0; theta1 < 360.0; theta1 += dt)
+		const int numVertex = 30;
+		float* vertexes = new float[2*numVertex];
+
+		for(int i = 0; i < numVertex; ++i)
 		{
-			double theta2 = theta1 + dt;
-			
-			double thetaRad1 = theta1 / 180.0 * M_PI;
-			double thetaRad2 = theta2 / 180.0 * M_PI;
+			float thetaRad = 2 * M_PI * i / numVertex;
 
-			// â~é¸ç¿ïWåvéZ
-			double rx1 = r * cos(thetaRad1);
-			double ry1 = r * sin(thetaRad1);
-			double rx2 = r * cos(thetaRad2);
-			double ry2 = r * sin(thetaRad2);
-
-			drawMethod(cx, cy, rx1, ry1, rx2, ry2);
+			vertexes[2*i]   = cx + r * std::cos(thetaRad);
+			vertexes[2*i+1] = cy + r * std::sin(thetaRad);
 		}
+		
+		glVertexPointer(2, GL_FLOAT, 0, vertexes);
 
+		glEnable(GLUT_MULTISAMPLE);
+		  glMatrixMode(GL_MODELVIEW);
+		  glEnableClientState(GL_VERTEX_ARRAY);
+			glDrawArrays(GL_TRIANGLE_FAN, 0, numVertex);
+		  glDisableClientState(GL_VERTEX_ARRAY);
+		glDisable(GLUT_MULTISAMPLE);
 	}
 
 };
+
+

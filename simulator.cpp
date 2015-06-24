@@ -58,7 +58,6 @@ void Simulator::MainLoop()
 		// キー入力処理
 		ProcInput();
 
-
 		// 描画イベント呼び出し
 		glutPostRedisplay();	
 
@@ -75,7 +74,7 @@ void Simulator::Initialize()
 {
 	numNode = 0;
 
-	// 大量のノード解放は重いので別スレッドで解放
+	// 別スレッドで解放
 	if( pNodes != nullptr ) { Deleter<Node> deleter(pNodes); }
 
 	pNodes = new std::vector<Node *>;
@@ -97,8 +96,6 @@ void Simulator::Initialize()
 	gnuplot.PlotXY(x, degCount);
 	glutPostRedisplay();	
 
-
-	// ここきれいに+別プロセス 移動 空間 キー処理（透過度）　マルチスレッド
 }
 
 
@@ -115,13 +112,20 @@ void Simulator::AppnedNodes(int num)
 
 void Simulator::MakeEdge()
 {
+	// 二分探索に変更 leastNeighbor
+
+//	int low  = 0;
+//	int high = pNodes->size();
+
+//	int mid  = (int)( (low + high) / 2);
+
 	int count = 0;
 	for(Node *n1 : *pNodes)
 	{
 		for(Node *n2 : *pNodes)
 		{
 			if( EdgeExists(*n1, *n2) ) { n1->AddNeighbor( n2 ); }
-			count++;
+			++count;
 		}
 	}
 }
@@ -129,7 +133,6 @@ void Simulator::MakeEdge()
 
 inline bool Simulator::EdgeExists(const Node& n1, const Node& n2) const
 {
-	// kuukann　モデル
 	return (&n1 != &n2) && (n1.Activity() + n2.Activity() > Node::maxActivity * 2 );
 }
 
