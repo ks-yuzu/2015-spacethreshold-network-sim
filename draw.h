@@ -31,12 +31,12 @@ class Draw
 		glEnd();
 	}
 
-	inline static void Circle(Pos center, double r, bool fFill)
+	inline static void Circle(Pos center, int r, bool fFill)
 	{
 		Circle(center.x, center.y, r, fFill);
 	}
 
-	static void Circle(double cx, double cy, double r, bool fFill)
+	static void Circle(int cx, int cy, int r, bool fFill)
 	{
 		//// ìhÇËÇ¬Ç‘Çµê›íË
 		//std::function<void(double, double, double, double, double, double)> drawLine =
@@ -52,7 +52,7 @@ class Draw
 
 		for(int i = 0; i < numVertex; ++i)
 		{
-			float thetaRad = 2 * M_PI * i / numVertex;
+			float thetaRad = static_cast<float>(2 * M_PI * i / numVertex);
 
 			vertexes[2*i]   = cx + r * std::cos(thetaRad);
 			vertexes[2*i+1] = cy + r * std::sin(thetaRad);

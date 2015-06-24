@@ -25,22 +25,23 @@ class Node
 	  // constant
 		static const int maxActivity = 100;
 		static const int minActivity = 0;
-
+		static const int threshold = maxActivity * 2;
 	  // operator
 		void Draw();
-		void AddNeighbor(Node *node){ neighbors.push_back(node); }
 
 	  // accessor
 		const Pos& GetPos() const { return pos; }
-		const std::list<Node*>& Neighbors() const { return neighbors; }
 		const int Activity() const { return activity; };
+		const std::vector<Node *>::iterator& LeastNeighbor() const { return leastNeighbor; }
+		void LeastNeighbor(std::vector<Node *>::iterator it) { leastNeighbor = it; }
 
 	private:
 	  // val
 		Pos pos;
+		int degree;
 		int activity;
 		Rgbd color;
-		std::list<Node*> neighbors;
+		std::vector<Node *>::iterator leastNeighbor;
 
 	  // operator
 		void AutoSetActivity();

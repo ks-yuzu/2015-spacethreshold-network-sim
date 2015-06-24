@@ -18,11 +18,12 @@ void Simulator::Draw()
 {
 	// vertex
 	glColor4d(0.4, 0.9, 0.4, 0.2);
-	for(Node *pNode1 : *pNodes)
+	for(Node *pNode : *pNodes)
 	{
-		for (Node *pNode2 : pNode1->Neighbors() )
+		// i : iterator,  p : pointer
+		for(auto ipNeighbor = pNode->LeastNeighbor(), ipEnd = pNodes->end(); ipNeighbor != ipEnd; ++ipNeighbor )
 		{
-			Draw::Line( pNode1->GetPos(), pNode2->GetPos() );
+			Draw::Line( pNode->GetPos(), (*ipNeighbor)->GetPos() );
 		}
 	}
 
@@ -79,7 +80,7 @@ void Simulator::Initialize()
 
 	pNodes = new std::vector<Node *>;
 	AppnedNodes(standardNumNode);
-	MakeEdge();
+	GenerateLink();
 
 	// グラフ設定
 	gnuplot.SetLogScale(); //両対数
@@ -90,11 +91,10 @@ void Simulator::Initialize()
 	std::vector<int> degCount(standardNumNode);
 
 	for(int i = 0; i < standardNumNode; i++) { x[i] = i; }
-	for(Node *pNode : *pNodes) { ++degCount[ pNode->Neighbors().size() ]; }
+//	for(Node *pNode : *pNodes) { ++degCount[ pNode->Neighbors().size() ]; }
 
 //	SetRange(0, 1000, 0, 10000);
-	gnuplot.PlotXY(x, degCount);
-	glutPostRedisplay();	
+//	gnuplot.PlotXY(x, degCount);
 
 }
 
@@ -110,30 +110,37 @@ void Simulator::AppnedNodes(int num)
 }
 
 
-void Simulator::MakeEdge()
+std::vector<Node *>::iterator BinarySearch_Lower(std::vector<Node *>::iterator first, std::vector<Node *>::iterator last, int reqiredActivity)
 {
-	// 二分探索に変更 leastNeighbor
+	// first と last の差を求める
+	std::iterator_traits< std::vector<Node *>::iterator >::difference_type diff = std::distance( first, last );
+	if ( diff == 0 ) return( first );
 
-//	int low  = 0;
-//	int high = pNodes->size();
+	// 中央の位置を求める
+	std::vector<Node *>::iterator middle = first;
+	std::advance( middle, diff / 2 );
 
-//	int mid  = (int)( (low + high) / 2);
-
-	int count = 0;
-	for(Node *n1 : *pNodes)
+	if( reqiredActivity > (*middle)->Activity() )
 	{
-		for(Node *n2 : *pNodes)
-		{
-			if( EdgeExists(*n1, *n2) ) { n1->AddNeighbor( n2 ); }
-			++count;
-		}
+		++middle;
+		return BinarySearch_Lower(middle,  last, reqiredActivity);
+	} else {
+		return BinarySearch_Lower(first, middle, reqiredActivity);
 	}
 }
 
 
-inline bool Simulator::EdgeExists(const Node& n1, const Node& n2) const
+void Simulator::GenerateLink()
 {
-	return (&n1 != &n2) && (n1.Activity() + n2.Activity() > Node::maxActivity * 2 );
+	// 二分探索に変更 leastNeighbor
+
+	for(Node *node : *pNodes)
+	{
+		std::vector<Node *>::iterator first = pNodes->begin(), last = pNodes->end();
+		node->LeastNeighbor( BinarySearch_Lower(first, last, Node::threshold - node->Activity()) );
+	}	
+
+//	int degree = ;
 }
 
 

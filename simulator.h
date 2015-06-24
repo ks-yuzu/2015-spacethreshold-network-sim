@@ -32,7 +32,7 @@ class Simulator
 
 		// operation
 		void AppnedNodes(int num = standardNumNode);
-		void MakeEdge();
+		void GenerateLink();
 
 		void ProcInput();
 };
