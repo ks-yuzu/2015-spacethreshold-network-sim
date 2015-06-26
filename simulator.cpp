@@ -151,7 +151,7 @@ void Simulator::GenerateLink()
 
 	for(auto iNode = first; iNode != last; ++iNode)
 	{
-		// —×Ú“_‚Ì’†‚ÅÅ¬Activity‚Ìƒm[ƒh‚ð“ñ•ª’Tõ
+		// Å¬Activity‚Ì—×Úƒm[ƒh‚ð“ñ•ª’Tõ
 		(*iNode)->LeastNeighbor( BinarySearch_Lower(first, last, Node::threshold - (*iNode)->Activity()) );
 
 		int deg = std::distance(iNode, (*iNode)->LeastNeighbor()) + 1;

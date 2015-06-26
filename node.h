@@ -44,6 +44,7 @@ class Node
 		int activity;
 		Rgbd color;
 		std::vector<Node *>::iterator leastNeighbor;
+//		std::vector<Node *> neighbors;
 
 	  // operator
 		void AutoSetActivity();
