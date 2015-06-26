@@ -8,7 +8,7 @@ Log Log::instance;
 
 
 Log::Log()
-:OutputWindow(10, 20, "LogWindow", /*"OutputWindow.exe /L"*/logConsole, 5),
+:OutputWindow(10, 20, "LogWindow", logConsole, 5),
 fDispTime(false)
 {
 }

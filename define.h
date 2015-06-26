@@ -11,7 +11,7 @@ static const Pos windowPos(30, 20);
 
 
 // ----- Simulator -----
-static const int standardNumNode = 10000;
+static const int standardNumNode = 5000;
 static const Pos mapSize = Pos(standardNumNode * 2, standardNumNode * 2);
 
 
@@ -22,3 +22,4 @@ static const std::string pathToGnuplot = "..\\tools\\gnuplot501\\bin\\gnuplot.ex
 // ----- math -----
 static const double M_PI = 3.14159265358;
 static const auto min = [](int a, int b){ return a < b ? a : b; };
+static const auto max = [](int a, int b){ return a > b ? a : b; };

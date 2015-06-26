@@ -22,6 +22,7 @@ void InitializeGlut(int argc, char *argv[])
 	auto reshapeCallback = [](int w, int h){ simulator.WindowResize(w, h); };
 	auto mouseCallback = [](int button, int state, int x, int y){ mouse.ProcMouseEvent(button, state, x, y); };
 //	auto kbCallback = [](unsigned char key, int x, int y){ input.ProcKbEvent(key, x, y); };
+//    -> WindowsAPI�ɕύX
 
 	glutInitWindowPosition(windowPos.x, windowPos.y);
 	glutInitWindowSize(windowSize.x, windowSize.y);
