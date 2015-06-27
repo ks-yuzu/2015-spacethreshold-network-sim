@@ -9,7 +9,7 @@ class Deleter
 		Deleter(std::vector<T *> *pVec){ deleteVectorByAnotherThread(pVec); }
 
 	private:
-		std::function<void(std::vector<T *> *)> deleteNodeVector =
+		std::function< void(std::vector<T *> *) > deleteNodeVector =
 			[](std::vector<T *> *pVec)
 			{
 				for(Node *pElem : *pVec){ delete pElem; }
