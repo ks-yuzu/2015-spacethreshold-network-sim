@@ -47,9 +47,9 @@ void Simulator::Draw()
 	auto ipEnd = std::end(*pNodes);
 	for(Node *pNode : *pNodes)
 	{
-		for(auto ipNeighbor = pNode->LeastNeighbor(); ipNeighbor != ipEnd; ++ipNeighbor )
+		for(auto pNeighbor : pNode->Neighbors())
 		{
-			Draw::Line( pNode->GetPos(), (*ipNeighbor)->GetPos() );
+			Draw::Line( pNode->GetPos(), pNeighbor->GetPos() );
 		}
 	}
 
@@ -142,22 +142,53 @@ void Simulator::AppnedNodes(int num)
 }
 
 
-void Simulator::GenerateLink()
+//threshold
+void Simulator::FindLeastNeighbor()
 {
 	numLink = 0;
 
 	// 探索対象の先頭, 末尾イテレータを予め取得（速度重視）
-	auto first = std::begin(*pNodes), last = std::end(*pNodes);
+	auto ipBegin = std::begin(*pNodes), ipEnd = std::end(*pNodes);
 
-	for(auto iNode = first; iNode != last; ++iNode)
+	for(auto ipNode = ipBegin; ipNode != ipEnd; ++ipNode)
 	{
 		// 最小Activityの隣接ノードを二分探索
-		(*iNode)->LeastNeighbor( BinarySearch_Lower(first, last, Node::threshold - (*iNode)->Activity()) );
+		(*ipNode)->LeastNeighbor( BinarySearch_Lower(ipBegin, ipEnd, Node::threshold - (*ipNode)->Activity()) );
 
-		int deg = std::distance(iNode, (*iNode)->LeastNeighbor()) + 1;
-		(*iNode)->Degree(deg);
+		int deg = std::distance(ipNode, (*ipNode)->LeastNeighbor()) + 1;
+		(*ipNode)->Degree(deg);
 		numLink += deg; // 合計
 	}	
+}
+
+//space threshold
+void Simulator::GenerateLink()
+{
+	numLink = 0;
+
+	const auto ipBegin = std::begin(*pNodes), ipEnd = std::end(*pNodes);
+
+	for(auto ipNode1 = ipBegin; ipNode1 != ipEnd; ++ipNode1)
+	{
+		for(auto ipNode2 = ipNode1+1; ipNode2 != ipEnd; ++ipNode2)
+		{
+			if( LinkExists(*ipNode1, *ipNode2) )
+			{
+				(*ipNode1)->AddNeighbor(*ipNode2);
+				(*ipNode2)->AddNeighbor(*ipNode1);
+			}
+		}
+
+		int deg = (*ipNode1)->Neighbors().size();
+		(*ipNode1)->Degree( deg );
+		numLink += deg;
+	}
+}
+
+
+inline bool Simulator::LinkExists(const Node *pn1, const Node *pn2) const
+{
+	return pn1->Activity() + pn2->Activity() > Node::threshold;
 }
 
 

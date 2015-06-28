@@ -27,7 +27,7 @@ class Simulator
 		int numNode;
 		int numLink;
 		std::vector<Node *> *pNodes;
-		bool EdgeExists(const Node&, const Node&) const;
+		bool LinkExists(const Node*, const Node*) const;
 
 		Pos drawPos;
 		double drawScale;
@@ -36,7 +36,8 @@ class Simulator
 
 		// operation
 		void AppnedNodes(int num = standardNumNode);
-		void GenerateLink();
+		void FindLeastNeighbor(); // threshold
+		void GenerateLink();      // space-threshold
 
 		void ProcInput();
 };
