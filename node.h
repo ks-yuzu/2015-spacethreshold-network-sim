@@ -19,7 +19,11 @@ class Node
 	public:
 	  // lifecycle
 		// 位置指定なしで作成したノードは一様分布
-		Node(Pos pos = posGen()) : pos(pos), color(0, 0, 0){ AutoSetActivity(); };
+		Node(Pos pos = posGen()) : pos(pos), color(0, 0, 0)
+		{
+			neighbors = new std::vector<Node *>;
+			AutoSetActivity();
+		}
 		virtual ~Node() = default;
 
 	  // constant
@@ -35,8 +39,8 @@ class Node
 		int Degree() const { return degree; }
 		void Degree(int adeg) { degree = adeg; }
 
-		std::vector<Node *>& Neighbors(){ return neighbors; }
-		void AddNeighbor(Node *neighbor){ neighbors.push_back(neighbor); }
+		std::vector<Node *>& Neighbors(){ return *neighbors; }
+		void AddNeighbor(Node *neighbor) const { neighbors->push_back(neighbor); }
 
 
 	private:
@@ -45,7 +49,7 @@ class Node
 		int degree;
 		int activity;
 		Rgbd color;
-		std::vector<Node *> neighbors;
+		std::vector<Node *> *neighbors;
 
 	  // operator
 		void AutoSetActivity();
@@ -67,7 +71,7 @@ inline void Node::AutoSetActivity()
 //	activity = ur(minActivity, maxActivity);
 
 	auto er = RandGen::exp;
-	activity = (int)( 10 * er(0.4) );
+	activity = (int)( 100 * er(0.1) );
 
 	double colorRate = fmax(0, 1 - (double)activity / maxActivity);
 	color = Hsvd2Rgbd((int)(240 * colorRate), 1, 1);

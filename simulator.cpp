@@ -125,6 +125,8 @@ void Simulator::GenerateLink()
 
 	const auto ipBegin = std::begin(*pNodes), ipEnd = std::end(*pNodes);
 
+	std::array<std::thread, 4> threads;
+
 	for(auto ipNode1 = ipBegin; ipNode1 != ipEnd; ++ipNode1)
 	{
 		for(auto ipNode2 = ipNode1+1; ipNode2 != ipEnd; ++ipNode2)
@@ -146,7 +148,7 @@ void Simulator::GenerateLink()
 bool Simulator::LinkExists(const Node *pn1, const Node *pn2) const
 {
 	auto sum = pn1->Activity() * pn2->Activity();
-	sum /= Pos::dist(pn1->GetPos(), pn2->GetPos());
+	sum /= Pos::distsq(pn1->GetPos(), pn2->GetPos());
 	return sum > 5;//Node::threshold;
 }
 
