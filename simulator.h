@@ -27,7 +27,6 @@ class Simulator
 		int numNode;
 		int numLink;
 		std::vector<Node *> *pNodes;
-		bool LinkExists(const Node*, const Node*) const;
 
 		Pos drawPos;
 		double drawScale;

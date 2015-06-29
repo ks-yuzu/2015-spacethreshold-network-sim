@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <numeric>
 #include <thread>
 #include <gl/glut.h>	
 #include <gl/freeglut_ext.h>
@@ -118,38 +119,45 @@ void Simulator::AppnedNodes(int num)
 	std::sort(std::begin(*pNodes), std::end(*pNodes), [](Node *n1, Node *n2){ return n1->Activity() < n2->Activity(); });
 }
 
+// 下の void Simulator::GenerateLink() から使用
+auto GenerateLinkThread =
+	[](std::vector<Node *>::iterator ipBegin1, std::vector<Node *>::iterator ipEnd1,
+	   std::vector<Node *>::iterator ipBegin2, std::vector<Node *>::iterator ipEnd2 )
+	{
+		for(auto ipNode1 = ipBegin1; ipNode1 != ipEnd1; ++ipNode1)
+		{
+			for(auto ipNode2 = ipBegin2; ipNode2 != ipEnd2; ++ipNode2)
+			{
+				if( Node::LinkExists(**ipNode1, **ipNode2) )
+				{
+					(*ipNode1)->AddNeighbor(*ipNode2);
+				}
+			}
+		}
+	};
 
 void Simulator::GenerateLink()
 {
 	numLink = 0;
 
-	const auto ipBegin = std::begin(*pNodes), ipEnd = std::end(*pNodes);
+	const auto
+		ipBegin = std::begin(*pNodes),
+		ipEnd = std::end(*pNodes),
+		ipMid = std::begin(*pNodes) + std::distance(ipBegin, ipEnd) / 2;
 
-	std::array<std::thread, 4> threads;
+	// 4スレッド並列
+	std::thread th1(GenerateLinkThread, ipBegin, ipMid, ipBegin, ipMid);
+	std::thread th2(GenerateLinkThread, ipBegin, ipMid, ipMid+1, ipEnd);
+	std::thread th3(GenerateLinkThread, ipMid+1, ipEnd, ipBegin, ipMid);
+	std::thread th4(GenerateLinkThread, ipMid+1, ipEnd, ipMid+1, ipEnd);
 
-	for(auto ipNode1 = ipBegin; ipNode1 != ipEnd; ++ipNode1)
-	{
-		for(auto ipNode2 = ipNode1+1; ipNode2 != ipEnd; ++ipNode2)
-		{
-			if( LinkExists(*ipNode1, *ipNode2) )
-			{
-				(*ipNode1)->AddNeighbor(*ipNode2);
-				(*ipNode2)->AddNeighbor(*ipNode1);
-			}
-		}
+	th1.join();
+	th2.join();
+	th3.join();
+	th4.join();
 
-		int deg = (*ipNode1)->Neighbors().size();
-		(*ipNode1)->Degree( deg );
-		numLink += deg;
-	}
-}
+//	std::accumulate(std::begin(*pNodes), std::end(*pNodes), 0, [](){});
 
-
-bool Simulator::LinkExists(const Node *pn1, const Node *pn2) const
-{
-	auto sum = pn1->Activity() * pn2->Activity();
-	sum /= Pos::distsq(pn1->GetPos(), pn2->GetPos());
-	return sum > 5;//Node::threshold;
 }
 
 
