@@ -35,11 +35,6 @@ class Node
 		int Degree() const { return degree; }
 		void Degree(int adeg) { degree = adeg; }
 
-		// threshold-model
-		const std::vector<Node *>::iterator& LeastNeighbor() const { return leastNeighbor; }
-		void LeastNeighbor(std::vector<Node *>::iterator it) { leastNeighbor = it; }
-
-		// space-threshold
 		std::vector<Node *>& Neighbors(){ return neighbors; }
 		void AddNeighbor(Node *neighbor){ neighbors.push_back(neighbor); }
 
@@ -50,8 +45,7 @@ class Node
 		int degree;
 		int activity;
 		Rgbd color;
-		std::vector<Node *>::iterator leastNeighbor; // threshold
-		std::vector<Node *> neighbors;               // space-threshold
+		std::vector<Node *> neighbors;
 
 	  // operator
 		void AutoSetActivity();

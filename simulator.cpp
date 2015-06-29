@@ -12,29 +12,6 @@
 #include "deleter.h"
 
 
-// 二分探索
-std::vector<Node *>::iterator BinarySearch_Lower(const std::vector<Node *>::iterator& iFirst, const std::vector<Node *>::iterator& iLast, int reqiredActivity)
-{
-	// firstとlastの差で一致判定（STL的処理）
-	auto diff = std::distance( iFirst, iLast );  // std::iterator_traits< std::vector<Node *>::iterator >::difference_type
-	if ( diff == 0 ) return( iFirst );
-
-	// 中央の位置を求める（STL的処理）
-	std::vector<Node *>::iterator iMiddle = iFirst;
-	std::advance( iMiddle, diff / 2 );
-
-	if( reqiredActivity > (*iMiddle)->Activity() )
-	{
-		++iMiddle;
-		return BinarySearch_Lower(iMiddle,  iLast, reqiredActivity);
-	}
-	else
-	{
-		return BinarySearch_Lower(iFirst, iMiddle, reqiredActivity);
-	}
-}
-
-
 //========================================
 //              callback
 //========================================
@@ -123,10 +100,10 @@ void Simulator::Initialize()
 	std::vector<int> degCount(standardNumNode);
 
 	for(int i = 0; i < standardNumNode; i++) { x[i] = i; }
-//	for(Node *pNode : *pNodes) { ++degCount[ pNode->Degree() ]; }
+	for(Node *pNode : *pNodes) { ++degCount[ pNode->Degree() ]; }
 
 //	SetRange(0, 1000, 0, 10000);
-//	gnuplot.PlotXY(x, degCount);
+	gnuplot.PlotXY(x, degCount);
 
 }
 
@@ -142,26 +119,6 @@ void Simulator::AppnedNodes(int num)
 }
 
 
-//threshold
-void Simulator::FindLeastNeighbor()
-{
-	numLink = 0;
-
-	// 探索対象の先頭, 末尾イテレータを予め取得（速度重視）
-	auto ipBegin = std::begin(*pNodes), ipEnd = std::end(*pNodes);
-
-	for(auto ipNode = ipBegin; ipNode != ipEnd; ++ipNode)
-	{
-		// 最小Activityの隣接ノードを二分探索
-		(*ipNode)->LeastNeighbor( BinarySearch_Lower(ipBegin, ipEnd, Node::threshold - (*ipNode)->Activity()) );
-
-		int deg = std::distance(ipNode, (*ipNode)->LeastNeighbor()) + 1;
-		(*ipNode)->Degree(deg);
-		numLink += deg; // 合計
-	}	
-}
-
-//space threshold
 void Simulator::GenerateLink()
 {
 	numLink = 0;
@@ -186,9 +143,11 @@ void Simulator::GenerateLink()
 }
 
 
-inline bool Simulator::LinkExists(const Node *pn1, const Node *pn2) const
+bool Simulator::LinkExists(const Node *pn1, const Node *pn2) const
 {
-	return pn1->Activity() + pn2->Activity() > Node::threshold;
+	auto sum = pn1->Activity() * pn2->Activity();
+	sum /= Pos::dist(pn1->GetPos(), pn2->GetPos());
+	return sum > 5;//Node::threshold;
 }
 
 

@@ -36,7 +36,6 @@ class Simulator
 
 		// operation
 		void AppnedNodes(int num = standardNumNode);
-		void FindLeastNeighbor(); // threshold
 		void GenerateLink();      // space-threshold
 
 		void ProcInput();
