@@ -67,11 +67,14 @@ inline void Node::Draw() const
 
 inline void Node::AutoSetActivity()
 {
-//	auto ur = RandGen::unifi;
+//	auto& ur = RandGen::unifi;
 //	activity = ur(minActivity, maxActivity);
 
-	auto er = RandGen::exp;
-	activity = (int)( 100 * er(0.1) );
+//	auto& er = RandGen::exp;
+//	activity = (int)( 100 * er(0.1) );
+
+	auto& prt = RandGen::prt;
+	activity = (int)( 100 * prt(5, 10) );
 
 	double colorRate = fmax(0, 1 - (double)activity / maxActivity);
 	color = Hsvd2Rgbd((int)(240 * colorRate), 1, 1);

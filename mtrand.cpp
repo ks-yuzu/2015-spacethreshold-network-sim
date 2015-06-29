@@ -30,4 +30,10 @@ namespace RandGen
 		return rand;
 	}
 
+	MtParetoRand& MtParetoRand::GetInstance()
+	{
+		static MtParetoRand rand;
+		return rand;
+	}
+
 }
