@@ -156,8 +156,7 @@ void Simulator::GenerateLink()
 	th3.join();
 	th4.join();
 
-//	std::accumulate(std::begin(*pNodes), std::end(*pNodes), 0, [](){});
-
+	numLink = std::accumulate(std::begin(*pNodes), std::end(*pNodes), 0, [](int sum, const Node *pNode2){ return sum + pNode2->Degree(); });
 }
 
 

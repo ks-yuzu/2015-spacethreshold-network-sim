@@ -83,7 +83,7 @@ inline void Node::AutoSetActivity()
 //	activity = (int)( 100 * er(0.1) );
 
 	auto& prt = RandGen::prt;
-	activity = (int)( 100 * prt(10, 10) );
+	activity = (int)( 50 * prt(10, 20) );
 
 	double colorRate = fmax(0, 1 - (double)activity / maxActivity);
 	color = Hsvd2Rgbd((int)(240 * colorRate), 1, 1);
