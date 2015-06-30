@@ -20,7 +20,7 @@ class Pos
 		const Pos& operator/=(const double a){ x = static_cast<int>(x / a);  y = static_cast<int>(x / a);  return *this; }
 
 		// operattion
-		static double distsq(const Pos& p1, const Pos& p2){ return ( (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y) ); }
+		static int distsq(const Pos& p1, const Pos& p2){ return ( (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y) ); }
 
 		// variable
 		int x, y;

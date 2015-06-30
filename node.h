@@ -8,7 +8,7 @@
 #include "draw.h"
 #include "mtrand.h"
 #include "hsv.h"
-
+#include "monitor\log_window.h"
 
 static const std::function<Pos()> posGen = []{
 	auto rand = RandGen::unifi;
@@ -31,30 +31,34 @@ class Node
 	  // constant
 		static const int maxActivity = 100;
 		static const int minActivity = 0;
-		static const int threshold = 10;//maxActivity * 2;
+		static const int threshold = 5;//maxActivity * 2;
 	  // operator
 		void Draw() const;
 
 	  // accessor
 		const Pos& GetPos() const { return pos; }
-		const int Activity() const { return activity; };
+		const double Activity() const { return activity; };
 		int Degree() const { return pNeighbors->size(); }
 
 		std::vector<Node *>& Neighbors(){ return *pNeighbors; }
-		void AddNeighbor(Node *neighbor) const { pNeighbors->push_back(neighbor); }
+		void AddNeighbor(Node *neighbor) const
+		{
+			std::lock_guard<std::mutex> lock(*pMtx);
+			pNeighbors->push_back(neighbor);
+		}
 
 	  // operation
 		static bool LinkExists(const Node& n1, const Node& n2)
 		{
 			auto sum = n1.Activity() * n2.Activity();
-			sum = (int)( sum / Pos::distsq(n1.GetPos(), n2.GetPos()) );
+			sum /= Pos::distsq(n1.GetPos(), n2.GetPos());
 			return sum > threshold;
 		}
 
 	private:
 	  // variable
 		Pos pos;
-		int activity;
+		double activity;
 		Rgbd color;
 		std::vector<Node *> *pNeighbors;
 
@@ -83,7 +87,9 @@ inline void Node::AutoSetActivity()
 //	activity = (int)( 100 * er(0.1) );
 
 	auto& prt = RandGen::prt;
-	activity = (int)( 50 * prt(10, 20) );
+	activity = prt(4, 10);
+
+//	Log::lout() << activity << Command::endline;
 
 	double colorRate = fmax(0, 1 - (double)activity / maxActivity);
 	color = Hsvd2Rgbd((int)(240 * colorRate), 1, 1);

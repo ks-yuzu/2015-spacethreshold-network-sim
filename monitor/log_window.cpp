@@ -3,7 +3,7 @@
 
 
 // instance of static variable
-const std::string Log::logConsole  = "OutputWindow.exe /L";
+const std::string Log::logConsole  = "..\\tools\\OutputWindow.exe /L";
 Log Log::instance;
 
 

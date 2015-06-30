@@ -23,7 +23,7 @@ public:
 	template<class T> Log& operator<<(T val);
 
 	void Init();
-	Log& lout(){ return instance; };
+	static Log& lout(){ return instance; };
 
 
 private:

@@ -51,9 +51,6 @@ void Simulator::MainLoop()
 {
 	Keyboard& kb = Keyboard::GetInstance();
 	FpsControl& fps = FpsControl::GetInstance();
-//	Log::cout.Init();
-//	Log::cout << "Log Window" << Command::endline << Command::endline; //ログウィンドウの設定とタイトル
-
 
 	while( fps.SetStartTime(), kb.Update() )
 	{
@@ -64,7 +61,7 @@ void Simulator::MainLoop()
 		ProcInput();
 
 		// 描画イベント呼び出し
-		glutPostRedisplay();	
+//		glutPostRedisplay();	
 
 		// ループ末処理
 		Monitor::mout(0) << Command::endline;
@@ -102,6 +99,7 @@ void Simulator::Initialize()
 
 	for(int i = 0; i < standardNumNode; i++) { x[i] = i; }
 	for(Node *pNode : *pNodes) { ++degCount[ pNode->Degree() ]; }
+//	for(Node *pNode : *pNodes) { ++degCount[ (int)pNode->Activity() ]; }
 
 //	SetRange(0, 1000, 0, 10000);
 	gnuplot.PlotXY(x, degCount);
