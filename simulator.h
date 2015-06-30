@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <iostream>
 #include "node.h"
 #include "graph/gnuplot.h"
@@ -11,7 +12,12 @@ class Simulator
 {
 	public:
 		// lifecycle
-		Simulator() : drawPos(0, 0), drawScale(1.0) {}
+		Simulator() : drawPos(0, 0), drawScale(1.0)
+		{
+			pCompleteRates = new std::array<double, 4>;
+			pCompleteRates->fill(0.0);
+			pCompleteRateMtx = new std::mutex;
+		}
 		virtual ~Simulator() = default;
 
 		// callback
@@ -21,6 +27,10 @@ class Simulator
 		// operations
 		void MainLoop();
 		void Initialize();
+
+		// accessor
+		double CompleteRate(int idx)           const { std::lock_guard<std::mutex> lock(*pCompleteRateMtx); return (*pCompleteRates)[idx]; }
+		void CompleteRate(int idx, double val) const { std::lock_guard<std::mutex> lock(*pCompleteRateMtx); (*pCompleteRates)[idx] = val; }
 
 	private:
 		// variable
@@ -32,6 +42,9 @@ class Simulator
 		double drawScale;
 
 		Gnuplot gnuplot;
+
+		std::array<double, 4> *pCompleteRates;
+		std::mutex *pCompleteRateMtx;
 
 		// operation
 		void AppnedNodes(int num = standardNumNode);

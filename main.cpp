@@ -46,8 +46,8 @@ int main(int argc, char *argv[])
 {
 	InitializeGlut(argc, argv);
 
-//	Log::lout().Init();
-//	Log::lout() << "Log Window" << Command::endline << Command::endline; //ログウィンドウの設定とタイトル
+	Log::lout().Init();
+	Log::lout() << "Log Window" << Command::endline << Command::endline; //ログウィンドウの設定とタイトル
 
 	simulator.Initialize();
 

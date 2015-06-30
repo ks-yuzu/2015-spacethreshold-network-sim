@@ -27,12 +27,12 @@ void Simulator::Draw()
 	{
 		for(auto pNeighbor : pNode->Neighbors())
 		{
-			Draw::Line( pNode->GetPos(), pNeighbor->GetPos() );
+//			Draw::Line( pNode->GetPos(), pNeighbor->GetPos() );
 		}
 	}
 
   // node
-	for each (Node *pNode in *pNodes) { pNode->Draw(); }
+//	for each (Node *pNode in *pNodes) { pNode->Draw(); }
 }
 
 void Simulator::WindowResize(int w, int h)
@@ -71,6 +71,12 @@ void Simulator::MainLoop()
 		Monitor::mout(0) << Command::endline;
 		Monitor::mout(0) << "pos   : " << drawPos << Command::endline;
 		Monitor::mout(0) << "scale : " << drawScale << Command::endline;
+
+		Monitor::mout(0) << Command::endline;
+		Monitor::mout(0) << "thread1 : " << CompleteRate(0) << Command::endline;
+		Monitor::mout(0) << "thread2 : " << CompleteRate(1) << Command::endline;
+		Monitor::mout(0) << "thread3 : " << CompleteRate(2) << Command::endline;
+		Monitor::mout(0) << "thread4 : " << CompleteRate(3) << Command::endline;
 
 		Monitor::AllWindowFlip();
 		fps.Update();
@@ -117,20 +123,23 @@ void Simulator::AppnedNodes(int num)
 	std::sort(std::begin(*pNodes), std::end(*pNodes), [](Node *n1, Node *n2){ return n1->Activity() < n2->Activity(); });
 }
 
+extern Simulator simulator;
 // 下の void Simulator::GenerateLink() から使用
 auto GenerateLinkThread =
 	[](std::vector<Node *>::iterator ipBegin1, std::vector<Node *>::iterator ipEnd1,
-	   std::vector<Node *>::iterator ipBegin2, std::vector<Node *>::iterator ipEnd2 )
+	   std::vector<Node *>::iterator ipBegin2, std::vector<Node *>::iterator ipEnd2, int idx)
 	{
 		for(auto ipNode1 = ipBegin1; ipNode1 != ipEnd1; ++ipNode1)
 		{
 			for(auto ipNode2 = ipBegin2; ipNode2 != ipEnd2; ++ipNode2)
 			{
-				if( Node::LinkExists(**ipNode1, **ipNode2) )
+				if( *ipNode1 != *ipNode2 && Node::LinkExists(**ipNode1, **ipNode2) )
 				{
 					(*ipNode1)->AddNeighbor(*ipNode2);
 				}
 			}
+
+			simulator.CompleteRate( idx, (double)std::distance(ipBegin1, ipNode1) / std::distance(ipBegin1, ipEnd1) );
 		}
 	};
 
@@ -144,17 +153,22 @@ void Simulator::GenerateLink()
 		ipMid = std::begin(*pNodes) + std::distance(ipBegin, ipEnd) / 2;
 
 	// 4スレッド並列
-	std::thread th1(GenerateLinkThread, ipBegin, ipMid, ipBegin, ipMid);
-	std::thread th2(GenerateLinkThread, ipBegin, ipMid, ipMid+1, ipEnd);
-	std::thread th3(GenerateLinkThread, ipMid+1, ipEnd, ipBegin, ipMid);
-	std::thread th4(GenerateLinkThread, ipMid+1, ipEnd, ipMid+1, ipEnd);
+	std::thread th1(GenerateLinkThread, ipBegin, ipMid, ipBegin, ipMid, 0);
+	std::thread th2(GenerateLinkThread, ipBegin, ipMid, ipMid+1, ipEnd, 1);
+	std::thread th3(GenerateLinkThread, ipMid+1, ipEnd, ipBegin, ipMid, 2);
+	std::thread th4(GenerateLinkThread, ipMid+1, ipEnd, ipMid+1, ipEnd, 3);
 
-	th1.join();
-	th2.join();
-	th3.join();
-	th4.join();
+//	th1.join();
+//	th2.join();
+//	th3.join();
+//	th4.join();
 
-	numLink = std::accumulate(std::begin(*pNodes), std::end(*pNodes), 0, [](int sum, const Node *pNode2){ return sum + pNode2->Degree(); });
+	th1.detach();
+	th2.detach();
+	th3.detach();
+	th4.detach();
+
+//	numLink = std::accumulate(std::begin(*pNodes), std::end(*pNodes), 0, [](int sum, const Node *pNode2){ return sum + pNode2->Degree(); });
 }
 
 

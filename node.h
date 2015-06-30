@@ -31,14 +31,15 @@ class Node
 	  // constant
 		static const int maxActivity = 100;
 		static const int minActivity = 0;
-		static const int threshold = 5;//maxActivity * 2;
+		static const int threshold = 3;//maxActivity * 2;
+
 	  // operator
-		void Draw() const;
+		bool operator==(const Node& n) const { return pos.x == n.pos.x && pos.y == n.pos.y; }
 
 	  // accessor
-		const Pos& GetPos() const { return pos; }
+		const Pos& GetPos()     const { return pos; }
 		const double Activity() const { return activity; };
-		int Degree() const { return pNeighbors->size(); }
+		int Degree()            const { return pNeighbors->size(); }
 
 		std::vector<Node *>& Neighbors(){ return *pNeighbors; }
 		void AddNeighbor(Node *neighbor) const
@@ -48,10 +49,14 @@ class Node
 		}
 
 	  // operation
+		void Draw() const;
+
 		static bool LinkExists(const Node& n1, const Node& n2)
 		{
 			auto sum = n1.Activity() * n2.Activity();
+			sum *= (long long int)standardNumNode * standardNumNode;
 			sum /= Pos::distsq(n1.GetPos(), n2.GetPos());
+//			Log::lout() << sum << Command::endline;
 			return sum > threshold;
 		}
 
