@@ -92,8 +92,8 @@ void Gnuplot::PlotXY(const std::vector<int>& x, const std::vector<int>& y)
 //	command() << buf.str();
 //	Execute();
 
-	int last = min( x.size(), y.size() );
-	for(int i = 0; i < last; i++)
+	size_t last = min( x.size(), y.size() );
+	for(size_t i = 0; i < last; i++)
 	{
 		command() << x[i] << " " << y[i] << endline;    // ƒf[ƒ^‚Ì‘‚«ž‚Ý
 	}  

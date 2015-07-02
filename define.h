@@ -3,6 +3,9 @@
 #include <string>
 #include "pos.h"
 
+// ----- System -----
+static const int numThread = 4;
+
 // ----- Window -----
 static const std::string title = "MathPro_NetworkSimurator";
 static const Pos windowSize(1200, 800);
@@ -23,3 +26,13 @@ static const std::string pathToGnuplot = "..\\tools\\gnuplot501\\bin\\gnuplot.ex
 static const double M_PI = 3.14159265358;
 static const auto min = [](int a, int b){ return a < b ? a : b; };
 static const auto max = [](int a, int b){ return a > b ? a : b; };
+
+
+static std::string MakeProgBar(double rate, int len = 25)
+{
+	std::stringstream ss;
+	ss << '[';
+	for(int i = 0; i < len; ++i) { ss << (i <= len * rate ? '*' : ' '); }
+	ss << ']';
+	return ss.str();
+};

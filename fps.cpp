@@ -27,7 +27,7 @@ FpsControl& FpsControl::GetInstance()
 void FpsControl::SetStartTime()
 {
 	startTime = timeGetTime();
-	Draw();
+//	Draw();
 }
 
 void FpsControl::Update()
@@ -49,19 +49,19 @@ void FpsControl::CalcFps()
 	fps = 1000. * MAX_COUNT / ( now - startCountingTime );
 
 	std::ostringstream buf;
-	buf << "FPS : " << std::fixed << std::setprecision(2) << fps;
+	buf << std::fixed << std::setprecision(2) << fps;
 	strFps = buf.str();
 }
 
-
-void FpsControl::Draw()
+std::string FpsControl::GetInfo() const
 {
 	std::ostringstream buf;
-	buf << "passTime : " << std::setw(4) << std::right << passTime << " ms" << Command::endline
-	    << "waitTime : " << std::setw(4) << std::right << waitTime << " ms" << Command::endline;
+	buf << "[FPS]" << Command::endline
+		<< "  FPS      : " << strFps << Command::endline
+		<< "  passTime : " << std::setw(4) << std::right << passTime << " ms" << Command::endline
+	    << "  waitTime : " << std::setw(4) << std::right << waitTime << " ms" << Command::endline;
 
-	Monitor::mout(0) << strFps << Command::endline
-					 << buf.str();
+	return buf.str();
 }
 
 

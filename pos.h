@@ -15,10 +15,11 @@ class Pos
 		Pos(const Pos& p) : x(p.x), y(p.y){}
 
 		// operator
-		const Pos& operator+=(const Pos& ap){ x += ap.x;  y += ap.y;  return *this; }
-		const Pos& operator-=(const Pos& ap){ x -= ap.x;  y -= ap.y;  return *this; }
-		const Pos& operator*=(const int a){ x *= a;  y *= a;  return *this; }
+		const Pos& operator+=(const Pos& ap) { x += ap.x;  y += ap.y;  return *this; }
+		const Pos& operator-=(const Pos& ap) { x -= ap.x;  y -= ap.y;  return *this; }
+		const Pos& operator*=(const int a)   { x *= a;  y *= a;  return *this; }
 		const Pos& operator/=(const double a){ x = static_cast<int>(x / a);  y = static_cast<int>(x / a);  return *this; }
+		bool operator==(const Pos& a) const { return x == a.x && y == a.y; }
 
 		// operattion
 		static long long int distsq(const Pos& p1, const Pos& p2)

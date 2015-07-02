@@ -22,17 +22,17 @@ void Simulator::Draw()
 	glColor4d(0.4, 0.9, 0.4, 0.2);
 
 	// i : iterator,  p : pointer
-	auto ipEnd = std::end(*pNodes);
-	for(Node *pNode : *pNodes)
-	{
-		for(auto pNeighbor : pNode->Neighbors())
-		{
-//			Draw::Line( pNode->GetPos(), pNeighbor->GetPos() );
-		}
-	}
+	//auto ipEnd = std::end(*pNodes);
+	//for(Node *pNode : *pNodes)
+	//{
+	//	for(auto pNeighbor : pNode->Neighbors())
+	//	{
+	//		Draw::Line( pNode->GetPos(), pNeighbor->GetPos() );
+	//	}
+	//}
 
   // node
-//	for each (Node *pNode in *pNodes) { pNode->Draw(); }
+	for each (Node *pNode in *pNodes) { pNode->Draw(); }
 }
 
 void Simulator::WindowResize(int w, int h)
@@ -61,23 +61,10 @@ void Simulator::MainLoop()
 		ProcInput();
 
 		// 描画イベント呼び出し
-//		glutPostRedisplay();	
+		glutPostRedisplay();	
 
 		// ループ末処理
-		Monitor::mout(0) << Command::endline;
-		Monitor::mout(0) << "node  : " << numNode << Command::endline;
-		Monitor::mout(0) << "link  : " << numLink << Command::endline;
-
-		Monitor::mout(0) << Command::endline;
-		Monitor::mout(0) << "pos   : " << drawPos << Command::endline;
-		Monitor::mout(0) << "scale : " << drawScale << Command::endline;
-
-		Monitor::mout(0) << Command::endline;
-		Monitor::mout(0) << "thread1 : " << CompleteRate(0) << Command::endline;
-		Monitor::mout(0) << "thread2 : " << CompleteRate(1) << Command::endline;
-		Monitor::mout(0) << "thread3 : " << CompleteRate(2) << Command::endline;
-		Monitor::mout(0) << "thread4 : " << CompleteRate(3) << Command::endline;
-
+		MonitorOutput();
 		Monitor::AllWindowFlip();
 		fps.Update();
 		fps.Wait();
@@ -104,11 +91,11 @@ void Simulator::Initialize()
 	std::vector<int> degCount(standardNumNode);
 
 	for(int i = 0; i < standardNumNode; i++) { x[i] = i; }
-	for(Node *pNode : *pNodes) { ++degCount[ pNode->Degree() ]; }
+//	for(Node *pNode : *pNodes) { ++degCount[ pNode->Degree() ]; }
 //	for(Node *pNode : *pNodes) { ++degCount[ (int)pNode->Activity() ]; }
 
 //	SetRange(0, 1000, 0, 10000);
-	gnuplot.PlotXY(x, degCount);
+//	gnuplot.PlotXY(x, degCount);
 
 }
 
@@ -131,15 +118,18 @@ auto GenerateLinkThread =
 	{
 		for(auto ipNode1 = ipBegin1; ipNode1 != ipEnd1; ++ipNode1)
 		{
+			int cnt = 0;
 			for(auto ipNode2 = ipBegin2; ipNode2 != ipEnd2; ++ipNode2)
 			{
 				if( *ipNode1 != *ipNode2 && Node::LinkExists(**ipNode1, **ipNode2) )
 				{
 					(*ipNode1)->AddNeighbor(*ipNode2);
+					++cnt;
 				}
 			}
 
-			simulator.CompleteRate( idx, (double)std::distance(ipBegin1, ipNode1) / std::distance(ipBegin1, ipEnd1) );
+			simulator.CompleteRate( idx, (double)std::distance(ipBegin1, ipNode1+1) / std::distance(ipBegin1, ipEnd1) );
+			simulator.mtNumLink += cnt;
 		}
 	};
 
@@ -147,10 +137,9 @@ void Simulator::GenerateLink()
 {
 	numLink = 0;
 
-	const auto
-		ipBegin = std::begin(*pNodes),
-		ipEnd = std::end(*pNodes),
-		ipMid = std::begin(*pNodes) + std::distance(ipBegin, ipEnd) / 2;
+	const auto	ipBegin = std::begin(*pNodes),
+				ipEnd   = std::end(*pNodes),
+				ipMid   = std::begin(*pNodes) + std::distance(ipBegin, ipEnd) / 2;
 
 	// 4スレッド並列
 	std::thread th1(GenerateLinkThread, ipBegin, ipMid, ipBegin, ipMid, 0);
@@ -158,17 +147,10 @@ void Simulator::GenerateLink()
 	std::thread th3(GenerateLinkThread, ipMid+1, ipEnd, ipBegin, ipMid, 2);
 	std::thread th4(GenerateLinkThread, ipMid+1, ipEnd, ipMid+1, ipEnd, 3);
 
-//	th1.join();
-//	th2.join();
-//	th3.join();
-//	th4.join();
-
 	th1.detach();
 	th2.detach();
 	th3.detach();
 	th4.detach();
-
-//	numLink = std::accumulate(std::begin(*pNodes), std::end(*pNodes), 0, [](int sum, const Node *pNode2){ return sum + pNode2->Degree(); });
 }
 
 
@@ -176,8 +158,7 @@ void Simulator::ProcInput()
 {
 	Keyboard& kb = Keyboard::GetInstance();
 
-	if( kb('I') == 1) 
-		{ Initialize(); }
+	if( kb('I') == 1) { Initialize(); }
 
 	if( !kb(VK_SHIFT) )
 	{
@@ -194,4 +175,28 @@ void Simulator::ProcInput()
 	}
 	else if( kb(VK_UP)   ) { drawScale *= 1.02; glScaled(1.02, 1.02, 1.02); }
 	else if( kb(VK_DOWN) ) { drawScale *= 0.97; glScaled(0.97, 0.97, 0.97); }
+}
+
+void Simulator::MonitorOutput()
+{
+	Monitor::mout(0) << FpsControl::GetInstance().GetInfo();
+
+	Monitor::mout(0) << Command::endline;
+	Monitor::mout(0) << "[Simulation info]" << Command::endline;
+	Monitor::mout(0) << "  node  : " << numNode << Command::endline;
+	Monitor::mout(0) << "  link  : " << mtNumLink() << Command::endline;
+
+	Monitor::mout(0) << Command::endline;
+	Monitor::mout(0) << "[Completion level of generating link]" << Command::endline;
+	for(int i = 0; i < numThread; ++i)
+	{
+		std::stringstream buf;
+		buf << "  thread" << i+1 << " : " << MakeProgBar(CompleteRate(i)) << "  (" << std::fixed << std::setprecision(2) << 100 * CompleteRate(i) << "%)";
+		Monitor::mout(0) << buf.str() << Command::endline;
+	}
+
+	Monitor::mout(0) << Command::endline;
+	Monitor::mout(0) << "[Drawing info]" << Command::endline;
+	Monitor::mout(0) << "  pos   : " << drawPos << Command::endline;
+	Monitor::mout(0) << "  scale : " << drawScale << Command::endline;
 }

@@ -7,9 +7,11 @@ class FpsControl
 	//LIFECYCLE
 		FpsControl(FpsControl&);
 
-
 	//ACCESS
-		static FpsControl& GetInstance();
+		static FpsControl& GetInstance ();
+		double PassTime() const { return passTime; }
+		double WaitTime() const { return waitTime; }
+		std::string GetInfo() const;
 
 	//OPERRATIONS
 		void SetStartTime();
@@ -28,7 +30,6 @@ class FpsControl
 
 	//OPERATIONS
 		void CalcFps();
-		void Draw();
 
 	//VARIABLES
 		DWORD startTime, startCountingTime;

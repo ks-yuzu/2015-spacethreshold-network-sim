@@ -93,7 +93,7 @@ void OutputWindow::Print(std::string str)
 	str += '|';
 
 	char const *mes = str.c_str();
-	WriteFile(writePipe, mes, strlen(mes), &dummy, NULL);
+	WriteFile(writePipe, mes, (DWORD)strlen(mes), &dummy, NULL);
 }
 
 
