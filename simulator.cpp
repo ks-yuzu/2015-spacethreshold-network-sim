@@ -22,14 +22,14 @@ void Simulator::Draw()
 	glColor4d(0.4, 0.9, 0.4, 0.2);
 
 	// i : iterator,  p : pointer
-	//auto ipEnd = std::end(*pNodes);
-	//for(Node *pNode : *pNodes)
-	//{
-	//	for(auto pNeighbor : pNode->Neighbors())
-	//	{
-	//		Draw::Line( pNode->GetPos(), pNeighbor->GetPos() );
-	//	}
-	//}
+	auto ipEnd = std::end(*pNodes);
+	for(Node *pNode : *pNodes)
+	{
+		for(auto pNeighbor : pNode->Neighbors())
+		{
+			Draw::Line( pNode->GetPos(), pNeighbor->GetPos() );
+		}
+	}
 
   // node
 	for each (Node *pNode in *pNodes) { pNode->Draw(); }
