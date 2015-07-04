@@ -1,7 +1,6 @@
 #pragma once
 
 #include <array>
-#include <iostream>
 #include "node.h"
 #include "graph/gnuplot.h"
 #include "mutux-val.h"
@@ -12,18 +11,11 @@ class Simulator
 {
 	public:
 		// lifecycle
-		Simulator() : drawPos(0, 0), drawScale(1.0)
-		{
-			pCompleteRates = new std::array<double, 4>;
-			pCompleteRates->fill(0.0);
-			pCompleteRateMtx = new std::mutex;
-
-			mtNumLink(0);
-		}
+		Simulator();
 		virtual ~Simulator() = default;
 
 		// callback
-		void Draw();
+		void Draw() const;
 		void WindowResize(int, int);
 
 		// operations
@@ -43,9 +35,9 @@ class Simulator
 		int numLink;
 		std::vector<Node *> *pNodes;
 
-		// -> MutexVal
 		std::array<double, 4> *pCompleteRates;
 		std::mutex *pCompleteRateMtx;
+			// -> MutexVal
 
 		Pos drawPos;
 		double drawScale;
@@ -57,5 +49,6 @@ class Simulator
 		void GenerateLink();
 
 		void ProcInput();
+		void DrawGraph();
 		void MonitorOutput();
 };

@@ -43,14 +43,17 @@ class Node
 		void Draw() const;
 		static bool LinkExists(const Node& n1, const Node& n2);
 
+	  // variable
+		std::mutex *pNeighborsMtx;
+
+
+
 	private:
 	  // variable
 		Pos pos;
 		double activity;
 		Rgbd color;
 		std::vector<Node *> *pNeighbors;
-
-		std::mutex *pMtx;
 
 	  // operator
 		void AutoSetActivity();

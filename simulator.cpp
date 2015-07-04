@@ -1,11 +1,10 @@
-#include <algorithm>
-#include <numeric>
+//#include <iostream>
 #include <thread>
 #include <gl/glut.h>	
 #include <gl/freeglut_ext.h>
+
 #include "define.h"
 #include "simulator.h"
-#include "mtrand.h"
 #include "fps.h"
 #include "input/key.h"
 #include "monitor/log_window.h"
@@ -13,13 +12,29 @@
 #include "deleter.h"
 
 
+Simulator::Simulator()
+: drawPos(0, 0), drawScale((double)windowSize.x / mapSize.x)
+{
+	pCompleteRates = new std::array<double, 4>;
+	pCompleteRates->fill(0.0);
+	pCompleteRateMtx = new std::mutex;
+
+	mtNumLink(0);
+}
+
+
+
 //========================================
 //              callback
 //========================================
-void Simulator::Draw()
+void Simulator::Draw() const
 {
   // vertex
 	glColor4d(0.4, 0.9, 0.4, 0.2);
+
+	glPushMatrix();
+	glTranslated(drawPos.x, drawPos.y, 0);
+	glScaled(drawScale, drawScale, drawScale);
 
 	// i : iterator,  p : pointer
 	auto ipEnd = std::end(*pNodes);
@@ -27,12 +42,15 @@ void Simulator::Draw()
 	{
 		for(auto pNeighbor : pNode->Neighbors())
 		{
+			std::lock_guard<std::mutex> lock(*(pNeighbor->pNeighborsMtx));
 			Draw::Line( pNode->GetPos(), pNeighbor->GetPos() );
 		}
 	}
 
   // node
 	for each (Node *pNode in *pNodes) { pNode->Draw(); }
+	
+	glPopMatrix();
 }
 
 void Simulator::WindowResize(int w, int h)
@@ -61,7 +79,7 @@ void Simulator::MainLoop()
 		ProcInput();
 
 		// 描画イベント呼び出し
-		glutPostRedisplay();	
+		glutPostRedisplay();
 
 		// ループ末処理
 		MonitorOutput();
@@ -73,30 +91,14 @@ void Simulator::MainLoop()
 
 void Simulator::Initialize()
 {
-	numNode = 0;
-
 	// 別スレッドで解放
 	if( pNodes != nullptr ) { Deleter<Node> deleter(pNodes); }
+
+	numNode = 0;
 
 	pNodes = new std::vector<Node *>;
 	AppnedNodes(standardNumNode);
 	GenerateLink();
-
-	// グラフ設定
-	gnuplot.SetLogScale(); //両対数
-	gnuplot.SetXLabel("degree");
-	gnuplot.SetYLabel("num of vertex");
-
-	std::vector<int> x(standardNumNode);
-	std::vector<int> degCount(standardNumNode);
-
-	for(int i = 0; i < standardNumNode; i++) { x[i] = i; }
-//	for(Node *pNode : *pNodes) { ++degCount[ pNode->Degree() ]; }
-//	for(Node *pNode : *pNodes) { ++degCount[ (int)pNode->Activity() ]; }
-
-//	SetRange(0, 1000, 0, 10000);
-//	gnuplot.PlotXY(x, degCount);
-
 }
 
 
@@ -128,6 +130,7 @@ auto GenerateLinkThread =
 				}
 			}
 
+			// mutex付きオペレータで途中経過を更新
 			simulator.CompleteRate( idx, (double)std::distance(ipBegin1, ipNode1+1) / std::distance(ipBegin1, ipEnd1) );
 			simulator.mtNumLink += cnt;
 		}
@@ -154,11 +157,33 @@ void Simulator::GenerateLink()
 }
 
 
+void Simulator::DrawGraph()
+{
+	// グラフ設定
+	gnuplot.SetLogScale(); //両対数
+	gnuplot.SetXLabel("degree");
+	gnuplot.SetYLabel("num of vertex");
+
+	static std::vector<int> x(standardNumNode, 0);
+	for(int i = 0; i < standardNumNode; i++) { x[i] = i; }
+
+	std::vector<int> degCount(standardNumNode, 0);
+	for(Node *pNode : *pNodes) { ++degCount[ pNode->Degree() ]; }
+	for(Node *pNode : *pNodes) { ++degCount[ (int)pNode->Activity() ]; }
+
+//	gnuplot.SetRange(0, 1000, 0, 10000);
+	gnuplot.PlotXY(x, degCount);
+
+}
+
+
+
 void Simulator::ProcInput()
 {
 	Keyboard& kb = Keyboard::GetInstance();
 
-	if( kb('I') == 1) { Initialize(); }
+	if( kb('I') == 1 ) { Initialize(); }
+	if( kb('G') == 1 ) { DrawGraph(); }
 
 	if( !kb(VK_SHIFT) )
 	{
@@ -170,12 +195,12 @@ void Simulator::ProcInput()
 		if( kb(VK_DOWN)  ) { move += Pos(0, -moveDist); }
 		if( kb(VK_CONTROL) ) { move *= 3; }
 
-		drawPos -= move;
-		glTranslated(move.x, move.y, 0);
+		drawPos += move;
 	}
-	else if( kb(VK_UP)   ) { drawScale *= 1.02; glScaled(1.02, 1.02, 1.02); }
-	else if( kb(VK_DOWN) ) { drawScale *= 0.97; glScaled(0.97, 0.97, 0.97); }
+	else if( kb(VK_UP)   ) { drawScale *= 1.02; }
+	else if( kb(VK_DOWN) ) { drawScale *= 0.97; }
 }
+
 
 void Simulator::MonitorOutput()
 {

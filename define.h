@@ -8,9 +8,10 @@ static const int numThread = 4;
 
 // ----- Window -----
 static const std::string title = "MathPro_NetworkSimurator";
-static const Pos windowSize(1200, 800);
-static const Pos windowPos(30, 20);
+constexpr Pos windowSize(1200, 800);
+constexpr Pos windowPos(30, 20);
 //static const int bitDepth		= 32;
+
 
 
 // ----- Simulator -----

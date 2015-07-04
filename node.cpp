@@ -5,14 +5,14 @@
 Node::Node(Pos pos) : pos(pos), color(0, 0, 0)
 {
 	pNeighbors = new std::vector<Node *>;
-	pMtx = new std::mutex;
+	pNeighborsMtx = new std::mutex;
 	AutoSetActivity();
 }
 
 Node::~Node()
 {
 	delete pNeighbors;
-	delete pMtx;
+	delete pNeighborsMtx;
 }
 
 
@@ -35,7 +35,7 @@ void Node::AutoSetActivity()
 
 void Node::AddNeighbor(Node *neighbor) const
 {
-	std::lock_guard<std::mutex> lock(*pMtx);
+	std::lock_guard<std::mutex> lock(*pNeighborsMtx);
 	pNeighbors->push_back(neighbor);
 }
 

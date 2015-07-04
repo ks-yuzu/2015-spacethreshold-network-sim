@@ -7,8 +7,9 @@ const std::string Log::logConsole  = "..\\tools\\OutputWindow.exe /L";
 Log Log::instance;
 
 
+
 Log::Log()
-:OutputWindow(10, 20, "LogWindow", logConsole, 5),
+:OutputWindow(1010, 20 + 494, "LogWindow", logConsole, 5),
 fDispTime(false)
 {
 }
