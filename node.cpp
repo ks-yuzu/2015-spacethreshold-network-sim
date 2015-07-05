@@ -49,11 +49,14 @@ void Node::Draw() const
 }
 
 
-bool Node::LinkExists(const Node& n1, const Node& n2)
+bool Node::LinkExists(const Node& n1, const Node& n2)//, int debug_idx)
 {
 	auto sum = n1.Activity() * n2.Activity();
 	sum *= (long long int)standardNumNode;// * standardNumNode;
-	sum /= Pos::distsq(n1.GetPos(), n2.GetPos());
-//	Log::lout() << sum << Command::endline;
+	sum /= (int)pow(  Pos::distsq(n1.GetPos(), n2.GetPos()), 1./3 )*10000;
+	
+//	Monitor::mout(debug_idx+1) << sum << Command::endline;
+
+	//	Log::lout() << sum << Command::endline;
 	return sum > threshold;
 }

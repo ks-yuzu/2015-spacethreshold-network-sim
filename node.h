@@ -41,7 +41,7 @@ class Node
 
 	  // operation
 		void Draw() const;
-		static bool LinkExists(const Node& n1, const Node& n2);
+		static bool LinkExists(const Node& n1, const Node& n2);//, int debug_idx);
 
 	  // variable
 		std::mutex *pNeighborsMtx;

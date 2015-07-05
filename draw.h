@@ -2,8 +2,7 @@
 
 #include <functional>
 #include <gl/freeglut.h>
-
-#define M_PI 3.141592653589
+#include "define.h"
 
 class Draw
 {
@@ -40,16 +39,16 @@ class Draw
 	{
 		// 描画処理
 		const int numVertex = 4;
-		float vertexes[2*numVertex]; // 速度重視で生配列
+		double vertexes[2*numVertex]; // 速度重視で生配列
 
 		for(int i = 0; i < numVertex; ++i)
 		{
-			float theta = 2 * static_cast<float>(M_PI) * i / numVertex;
+			double theta = 2 * M_PI * i / numVertex;
 			vertexes[2*i]   = cx + r * std::cos(theta);
 			vertexes[2*i+1] = cy + r * std::sin(theta);
 		}
 		
-		glVertexPointer(2, GL_FLOAT, 0, vertexes);
+		glVertexPointer(2, GL_DOUBLE, 0, vertexes);
 
 		glEnable(GLUT_MULTISAMPLE);
 		  glMatrixMode(GL_MODELVIEW);

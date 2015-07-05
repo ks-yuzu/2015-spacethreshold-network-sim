@@ -13,8 +13,9 @@
 
 
 Simulator::Simulator()
-: drawPos(0, 0), drawScale((double)windowSize.x / mapSize.x)
+: drawPos(0, 0), drawScale((double)windowHeight / (standardNumNode * 2))
 {
+	standardNumNode;
 	pCompleteRates = new std::array<double, 4>;
 	pCompleteRates->fill(0.0);
 	pCompleteRateMtx = new std::mutex;
@@ -109,7 +110,7 @@ void Simulator::AppnedNodes(int num)
 
 	for(int i = 0; i < num; i++) { pNodes->push_back( new Node() ); }
 
-	std::sort(std::begin(*pNodes), std::end(*pNodes), [](Node *n1, Node *n2){ return n1->Activity() < n2->Activity(); });
+//	std::sort(std::begin(*pNodes), std::end(*pNodes), [](Node *n1, Node *n2){ return n1->Activity() < n2->Activity(); });
 }
 
 extern Simulator simulator;
@@ -123,7 +124,7 @@ auto GenerateLinkThread =
 			int cnt = 0;
 			for(auto ipNode2 = ipBegin2; ipNode2 != ipEnd2; ++ipNode2)
 			{
-				if( *ipNode1 != *ipNode2 && Node::LinkExists(**ipNode1, **ipNode2) )
+				if( *ipNode1 != *ipNode2 && Node::LinkExists(**ipNode1, **ipNode2))//, idx) )
 				{
 					(*ipNode1)->AddNeighbor(*ipNode2);
 					++cnt;
@@ -168,8 +169,8 @@ void Simulator::DrawGraph()
 	for(int i = 0; i < standardNumNode; i++) { x[i] = i; }
 
 	std::vector<int> degCount(standardNumNode, 0);
-	for(Node *pNode : *pNodes) { ++degCount[ pNode->Degree() ]; }
-	for(Node *pNode : *pNodes) { ++degCount[ (int)pNode->Activity() ]; }
+	for(Node *pNode : *pNodes) { ++degCount[ pNode->Degree() /5]; }
+//	for(Node *pNode : *pNodes) { ++degCount[ (int)pNode->Activity() ]; }
 
 //	gnuplot.SetRange(0, 1000, 0, 10000);
 	gnuplot.PlotXY(x, degCount);
