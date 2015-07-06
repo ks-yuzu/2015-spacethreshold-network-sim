@@ -29,7 +29,7 @@ void Node::AutoSetActivity()
 
 //	Log::lout() << activity << Command::endline;
 
-	double colorRate = fmax(0, 1 - (double)activity / maxActivity);
+	double colorRate = min( max(0, 1 - activity / maxActivity), 1);
 	color = Hsvd2Rgbd((int)(240 * colorRate), 1, 1);
 }
 
@@ -42,19 +42,30 @@ void Node::AddNeighbor(Node *neighbor) const
 
 void Node::Draw() const
 {
-	const int radius = 5;
+	const int radius = static_cast<int>(4 * activity);
 
-	glColor4d(color.r, color.g, color.b, 0.5);
+	glColor4d(color.r, color.g, color.b, 0.7);
 	Draw::Circle(pos, radius, true);
 }
 
 
 bool Node::LinkExists(const Node& n1, const Node& n2)//, int debug_idx)
 {
+//	constexpr int threshold = 30;
+	constexpr int threshold = 50; // nml-pos
+
 	auto sum = n1.Activity() * n2.Activity();
-	sum *= (long long int)standardNumNode;// * standardNumNode;
-	sum /= (int)pow(  Pos::distsq(n1.GetPos(), n2.GetPos()), 1./3 )*10000;
-	
+//	sum *= 10;
+//	sum /= pow(Pos::distsq(n1.GetPos(), n2.GetPos()), 1.0 / 3);
+	sum *= 80;
+	sum /= pow(Pos::distsq(n1.GetPos(), n2.GetPos()), 1.0 / 2);
+
+//	auto sum = n1.Activity() + n2.Activity();
+//	sum *= 100;
+//	sum /= pow(  Pos::distsq(n1.GetPos(), n2.GetPos()), 1.0 / 3 );
+//	sum *= 1000;
+//	sum /= pow(Pos::distsq(n1.GetPos(), n2.GetPos()), 1.0 / 2);
+
 //	Monitor::mout(debug_idx+1) << sum << Command::endline;
 
 	//	Log::lout() << sum << Command::endline;

@@ -38,7 +38,7 @@ class Draw
 	static void Circle(int cx, int cy, int r, bool fFill)
 	{
 		// •`‰æˆ—
-		const int numVertex = 4;
+		const int numVertex = 10;
 		double vertexes[2*numVertex]; // ‘¬“xd‹‚Å¶”z—ñ
 
 		for(int i = 0; i < numVertex; ++i)

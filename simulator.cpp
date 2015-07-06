@@ -1,4 +1,3 @@
-//#include <iostream>
 #include <thread>
 #include <gl/glut.h>	
 #include <gl/freeglut_ext.h>
@@ -10,6 +9,7 @@
 #include "monitor/log_window.h"
 #include "monitor/monitor_window.h"
 #include "deleter.h"
+#include "mtrand.h"
 
 
 Simulator::Simulator()
@@ -30,27 +30,28 @@ Simulator::Simulator()
 //========================================
 void Simulator::Draw() const
 {
-  // vertex
-	glColor4d(0.4, 0.9, 0.4, 0.2);
-
 	glPushMatrix();
 	glTranslated(drawPos.x, drawPos.y, 0);
 	glScaled(drawScale, drawScale, drawScale);
 
-	// i : iterator,  p : pointer
-	auto ipEnd = std::end(*pNodes);
+	// --- 描画処理開始 ---
+
+	// vertex
+	glColor4d(0.4, 0.9, 0.4, 0.2);
+
 	for(Node *pNode : *pNodes)
 	{
 		for(auto pNeighbor : pNode->Neighbors())
 		{
-			std::lock_guard<std::mutex> lock(*(pNeighbor->pNeighborsMtx));
+			//std::lock_guard<std::mutex> lock(*(pNeighbor->pNeighborsMtx));
 			Draw::Line( pNode->GetPos(), pNeighbor->GetPos() );
 		}
 	}
 
-  // node
+	// node
 	for each (Node *pNode in *pNodes) { pNode->Draw(); }
 	
+	// --- 描画処理ここまで ---
 	glPopMatrix();
 }
 
@@ -90,6 +91,7 @@ void Simulator::MainLoop()
 	}
 }
 
+
 void Simulator::Initialize()
 {
 	// 別スレッドで解放
@@ -103,22 +105,60 @@ void Simulator::Initialize()
 }
 
 
+//void Simulator::AppnedNodes(int num)
+//{
+//	numNode += standardNumNode;
+//	pNodes->reserve( numNode );
+//
+//	for(int i = 0; i < num; i++) { pNodes->push_back( new Node() ); }
+//
+////	std::sort(std::begin(*pNodes), std::end(*pNodes), [](Node *n1, Node *n2){ return n1->Activity() < n2->Activity(); });
+//}
+
+
+
 void Simulator::AppnedNodes(int num)
 {
+	constexpr int dev = 10;
+
 	numNode += standardNumNode;
-	pNodes->reserve( numNode );
+	pNodes->reserve(numNode);
 
-	for(int i = 0; i < num; i++) { pNodes->push_back( new Node() ); }
+	for(int i = 0; i < dev; ++i)
+	{
+		Node *pCenterNode = new Node();
+		pNodes->push_back(pCenterNode);
 
-//	std::sort(std::begin(*pNodes), std::end(*pNodes), [](Node *n1, Node *n2){ return n1->Activity() < n2->Activity(); });
+		auto& nml = RandGen::nml;
+
+		//for( int j = 0; j < num / dev - 1; ++j )
+		//{
+		//	pNodes->push_back(new Node(Pos(nml(pCenterNode->GetPos().x, nml(20000,100)), nml(pCenterNode->GetPos().y, nml(20000, 100)))));
+		//}
+
+		for(int j = 0; j < num / dev /2 -1; ++j)
+		{
+			pNodes->push_back(new Node( Pos(nml(pCenterNode->GetPos().x, 10000), nml(pCenterNode->GetPos().y, 10000)) ));
+			pNodes->push_back(new Node( Pos(nml(pCenterNode->GetPos().x, 20000), nml(pCenterNode->GetPos().y, 20000)) ));
+//			pNodes->push_back(new Node(Pos(nml(pCenterNode->GetPos().x, nml(20000,100)), nml(pCenterNode->GetPos().y, nml(20000, 100)))));
+		}
+		pNodes->push_back(new Node(Pos(nml(pCenterNode->GetPos().x, 10000), nml(pCenterNode->GetPos().y, 10000)))); // 数合わせ
+	}
+
+	//	std::sort(std::begin(*pNodes), std::end(*pNodes), [](Node *n1, Node *n2){ return n1->Activity() < n2->Activity(); });
 }
 
-extern Simulator simulator;
-// 下の void Simulator::GenerateLink() から使用
-auto GenerateLinkThread =
+
+
+
+
+// void Simulator::GenerateLink() で使用
+auto generateLinkThread =
 	[](std::vector<Node *>::iterator ipBegin1, std::vector<Node *>::iterator ipEnd1,
 	   std::vector<Node *>::iterator ipBegin2, std::vector<Node *>::iterator ipEnd2, int idx)
 	{
+		extern Simulator simulator;
+
 		for(auto ipNode1 = ipBegin1; ipNode1 != ipEnd1; ++ipNode1)
 		{
 			int cnt = 0;
@@ -146,16 +186,17 @@ void Simulator::GenerateLink()
 				ipMid   = std::begin(*pNodes) + std::distance(ipBegin, ipEnd) / 2;
 
 	// 4スレッド並列
-	std::thread th1(GenerateLinkThread, ipBegin, ipMid, ipBegin, ipMid, 0);
-	std::thread th2(GenerateLinkThread, ipBegin, ipMid, ipMid+1, ipEnd, 1);
-	std::thread th3(GenerateLinkThread, ipMid+1, ipEnd, ipBegin, ipMid, 2);
-	std::thread th4(GenerateLinkThread, ipMid+1, ipEnd, ipMid+1, ipEnd, 3);
+	std::thread th1(generateLinkThread, ipBegin, ipMid, ipBegin, ipMid, 0);
+	std::thread th2(generateLinkThread, ipBegin, ipMid, ipMid+1, ipEnd, 1);
+	std::thread th3(generateLinkThread, ipMid+1, ipEnd, ipBegin, ipMid, 2);
+	std::thread th4(generateLinkThread, ipMid+1, ipEnd, ipMid+1, ipEnd, 3);
 
 	th1.detach();
 	th2.detach();
 	th3.detach();
 	th4.detach();
 }
+
 
 
 void Simulator::DrawGraph()
@@ -169,7 +210,7 @@ void Simulator::DrawGraph()
 	for(int i = 0; i < standardNumNode; i++) { x[i] = i; }
 
 	std::vector<int> degCount(standardNumNode, 0);
-	for(Node *pNode : *pNodes) { ++degCount[ pNode->Degree() /5]; }
+	for(Node *pNode : *pNodes) { ++degCount[ pNode->Degree() ]; }
 //	for(Node *pNode : *pNodes) { ++degCount[ (int)pNode->Activity() ]; }
 
 //	gnuplot.SetRange(0, 1000, 0, 10000);
@@ -201,6 +242,7 @@ void Simulator::ProcInput()
 	else if( kb(VK_UP)   ) { drawScale *= 1.02; }
 	else if( kb(VK_DOWN) ) { drawScale *= 0.97; }
 }
+
 
 
 void Simulator::MonitorOutput()

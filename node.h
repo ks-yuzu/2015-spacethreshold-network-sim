@@ -24,9 +24,8 @@ class Node
 		virtual ~Node();
 
 	  // constant
-		static const int maxActivity = 100;
+		static const int maxActivity = 70;
 		static const int minActivity = 0;
-		static const int threshold = 30;//maxActivity * 2;
 
 	  // operator
 		bool operator==(const Node& n) const { return pos == n.pos; }

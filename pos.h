@@ -3,6 +3,8 @@
 #include "define.h"
 #include "monitor/monitor_window.h"
 
+#include <climits>
+
 class Pos
 {
 	public:
@@ -26,12 +28,13 @@ class Pos
 		// operation
 		static long long int distsq(const Pos& p1, const Pos& p2)
 		{
-			auto pow2li = [](long int a){return (long long int)a * a;};
+			// 2æ‚ğlong long int‚Å•Ô‚·ƒ‰ƒ€ƒ_
+			auto pow2li = [](int a){return (__int64)a * a;};
 			return pow2li(p1.x - p2.x) + pow2li(p1.y - p2.y);
 		}
 
 		// variable
-		long int x, y;
+		int x, y;
 
 	private:
 		Pos() = default;
