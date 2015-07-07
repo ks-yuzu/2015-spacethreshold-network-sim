@@ -242,7 +242,8 @@ void Simulator::ProcInput()
 void Simulator::DrawGraph()
 {
 	// ƒOƒ‰ƒtİ’è
-	gnuplot.SetLogScale(); //—¼‘Î”
+//	gnuplot.SetLogScale(); //—¼‘Î”
+	gnuplot.SetLogScaleY(); //•Ğ‘Î”
 	gnuplot.SetXLabel( "degree" );
 	gnuplot.SetYLabel( "num of vertex" );
 
