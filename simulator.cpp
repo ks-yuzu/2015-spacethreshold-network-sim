@@ -129,7 +129,7 @@ void Simulator::AppnedNodes(int num)
 // ノードをシードを中心とした正規分布させる
 void Simulator::AppnedNodes(int num)
 {
-	constexpr int dev = standardNumNode / 10000; //1万ずつで塊を作る
+	constexpr int dev = standardNumNode / 1000;
 
 	numNode += standardNumNode;
 	pNodes->reserve(numNode);
@@ -236,14 +236,14 @@ void Simulator::ProcInput()
 
 
 //========================================
-//       描画処理（コールバック除く）
+//      描画処理（コールバック除く）
 //========================================
 
 void Simulator::DrawGraph()
 {
 	// グラフ設定
-//	gnuplot.SetLogScale(); //両対数
-	gnuplot.SetLogScaleY(); //片対数
+	gnuplot.SetLogScale(); //両対数
+//	gnuplot.SetLogScaleY(); //片対数
 	gnuplot.SetXLabel( "degree" );
 	gnuplot.SetYLabel( "num of vertex" );
 
@@ -309,7 +309,6 @@ void Simulator::MonitorOutput()
 			<< "  (" << std::fixed << std::setprecision(3) << 100 * CompleteRate(i) << "%)" << Command::endline;
 	}
 
-<<<<<<< HEAD
 	buf << Command::endline
 		<< "[Drawing info]" << Command::endline
 		<< "  flag  : " << (fGraphicalOut ? "true" : "false") << Command::endline
@@ -319,39 +318,5 @@ void Simulator::MonitorOutput()
 
 	Monitor::mout(0) << buf.str() << Command::endline;
 }
-
-
-/*
-
-void Simulator::MonitorOutput()
-{
-Monitor::mout(0) << FpsControl::GetInstance().GetInfo();
-
-Monitor::mout(0) << Command::endline;
-Monitor::mout(0) << "[Simulation info]" << Command::endline;
-Monitor::mout(0) << "  node  : " << numNode << Command::endline;
-Monitor::mout(0) << "  link  : " << mtNumLink() << Command::endline;
-
-Monitor::mout(0) << Command::endline;
-Monitor::mout(0) << "[Completion level of generating link]" << Command::endline;
-for(int i = 0; i < numThread; ++i)
-{
-std::stringstream buf;
-buf << "  thread" << i+1 << " : " << MakeProgBar(CompleteRate(i)) << "  (" << std::fixed << std::setprecision(2) << 100 * CompleteRate(i) << "%)";
-Monitor::mout(0) << buf.str() << Command::endline;
-}
-
-Monitor::mout(0) << Command::endline;
-Monitor::mout(0) << "[Drawing info]" << Command::endline;
-Monitor::mout(0) << "  pos   : " << drawPos << Command::endline;
-Monitor::mout(0) << "  scale : " << drawScale << Command::endline;
-}
-=======
-	Monitor::mout(0) << Command::endline;
-	Monitor::mout(0) << "[Drawing info]" << Command::endline;
-	Monitor::mout(0) << "  pos   : " << drawPos << Command::endline;
-	Monitor::mout(0) << "  scale : " << drawScale << Command::endline;
-	}
->>>>>>> ac09360acc91739f2c5510b69c7912acf5575055
 
 */

@@ -18,11 +18,11 @@ Node::~Node()
 
 void Node::AutoSetActivity()
 {
-//	auto& ur = RandGen::unifi;
-//	activity = ur(minActivity, maxActivity);
+	auto& ur = RandGen::unifi;
+	activity = ur(minActivity, maxActivity);
 
-	auto& er = RandGen::exp;
-	activity = (int)( 5 * er(0.5) );
+//	auto& er = RandGen::exp;
+//	activity = (int)( 5 * er(0.5) );
 
 //	auto& prt = RandGen::prt;
 //	activity = prt(4, 10);

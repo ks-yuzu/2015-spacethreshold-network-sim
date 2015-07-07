@@ -16,6 +16,7 @@ static const std::function<Pos()> posGen =
 		return Pos( rand(0, mapSize.x), rand(0, mapSize.y) );
 	};
 
+
 class Node
 {
 	public:
