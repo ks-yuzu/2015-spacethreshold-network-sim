@@ -44,6 +44,8 @@ class Simulator
 
 		Gnuplot gnuplot;
 
+		bool fGraphicalOut = true;
+
 		// operation
 		void AppnedNodes(int num = standardNumNode);
 		void GenerateLink();

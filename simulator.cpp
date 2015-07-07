@@ -30,6 +30,8 @@ Simulator::Simulator()
 //========================================
 void Simulator::Draw() const
 {
+	if( !fGraphicalOut ) { return; }
+
 	glPushMatrix();
 	glTranslated(drawPos.x, drawPos.y, 0);
 	glScaled(drawScale, drawScale, drawScale);
@@ -119,33 +121,28 @@ void Simulator::Initialize()
 
 void Simulator::AppnedNodes(int num)
 {
-	constexpr int dev = 10;
+	constexpr int dev = standardNumNode / 10000;
 
 	numNode += standardNumNode;
 	pNodes->reserve(numNode);
 
 	for(int i = 0; i < dev; ++i)
 	{
-		Node *pCenterNode = new Node();
-		pNodes->push_back(pCenterNode);
+		auto seed = posGen();
+		auto& nml = RandGen::nml; //³‹K®”—”¶¬Ší
+		int sd = RandGen::unifi(
+			static_cast<int>(standardNumNode * 0.08),
+			static_cast<int>(standardNumNode * 0.16)
+		); //ˆê—l®”—”‚Å•W€•Î·‚ğ¶¬
 
-		auto& nml = RandGen::nml;
-
-		//for( int j = 0; j < num / dev - 1; ++j )
-		//{
-		//	pNodes->push_back(new Node(Pos(nml(pCenterNode->GetPos().x, nml(20000,100)), nml(pCenterNode->GetPos().y, nml(20000, 100)))));
-		//}
-
-		for(int j = 0; j < num / dev /2 -1; ++j)
+		for(int j = 0; j < num / dev; ++j)
 		{
-			pNodes->push_back(new Node( Pos(nml(pCenterNode->GetPos().x, 10000), nml(pCenterNode->GetPos().y, 10000)) ));
-			pNodes->push_back(new Node( Pos(nml(pCenterNode->GetPos().x, 20000), nml(pCenterNode->GetPos().y, 20000)) ));
-//			pNodes->push_back(new Node(Pos(nml(pCenterNode->GetPos().x, nml(20000,100)), nml(pCenterNode->GetPos().y, nml(20000, 100)))));
+			pNodes->push_back(new Node( Pos(nml(seed.x, sd), nml(seed.y, sd)) ));
+//			pNodes->push_back(new Node( Pos(nml(seed.x, 20000), nml(seed.y, 20000)) ));
 		}
-		pNodes->push_back(new Node(Pos(nml(pCenterNode->GetPos().x, 10000), nml(pCenterNode->GetPos().y, 10000)))); // ”‡‚í‚¹
 	}
 
-	//	std::sort(std::begin(*pNodes), std::end(*pNodes), [](Node *n1, Node *n2){ return n1->Activity() < n2->Activity(); });
+//	std::sort(std::begin(*pNodes), std::end(*pNodes), [](Node *n1, Node *n2){ return n1->Activity() < n2->Activity(); });
 }
 
 
@@ -226,6 +223,7 @@ void Simulator::ProcInput()
 
 	if( kb('I') == 1 ) { Initialize(); }
 	if( kb('G') == 1 ) { DrawGraph(); }
+	if( kb('T') == 1 ) { fGraphicalOut = !fGraphicalOut; }
 
 	if( !kb(VK_SHIFT) )
 	{
@@ -247,24 +245,57 @@ void Simulator::ProcInput()
 
 void Simulator::MonitorOutput()
 {
-	Monitor::mout(0) << FpsControl::GetInstance().GetInfo();
+	std::stringstream buf;
 
-	Monitor::mout(0) << Command::endline;
-	Monitor::mout(0) << "[Simulation info]" << Command::endline;
-	Monitor::mout(0) << "  node  : " << numNode << Command::endline;
-	Monitor::mout(0) << "  link  : " << mtNumLink() << Command::endline;
+	buf << FpsControl::GetInstance().GetInfo()
+		<< Command::endline
+		<< "[Simulation info]" << Command::endline
+		<< "  node  : " << numNode << Command::endline
+		<< "  link  : " << mtNumLink() << Command::endline
+		<< Command::endline
+		<< "[Completion]" << Command::endline;
 
-	Monitor::mout(0) << Command::endline;
-	Monitor::mout(0) << "[Completion level of generating link]" << Command::endline;
 	for(int i = 0; i < numThread; ++i)
 	{
-		std::stringstream buf;
-		buf << "  thread" << i+1 << " : " << MakeProgBar(CompleteRate(i)) << "  (" << std::fixed << std::setprecision(2) << 100 * CompleteRate(i) << "%)";
-		Monitor::mout(0) << buf.str() << Command::endline;
+		buf << "  thread" << i+1 << " : " << MakeProgBar(CompleteRate(i))
+			<< "  (" << std::fixed << std::setprecision(3) << 100 * CompleteRate(i) << "%)" << Command::endline;
 	}
 
-	Monitor::mout(0) << Command::endline;
-	Monitor::mout(0) << "[Drawing info]" << Command::endline;
-	Monitor::mout(0) << "  pos   : " << drawPos << Command::endline;
-	Monitor::mout(0) << "  scale : " << drawScale << Command::endline;
+	buf << Command::endline
+		<< "[Drawing info]" << Command::endline
+		<< "  flag  : " << (fGraphicalOut ? "true" : "false") << Command::endline
+		<< "  pos   : " << drawPos << Command::endline
+		<< "  scale : " << drawScale * 100 << "%" << Command::endline;
+
+
+	Monitor::mout(0) << buf.str() << Command::endline;
 }
+
+
+/*
+
+void Simulator::MonitorOutput()
+{
+Monitor::mout(0) << FpsControl::GetInstance().GetInfo();
+
+Monitor::mout(0) << Command::endline;
+Monitor::mout(0) << "[Simulation info]" << Command::endline;
+Monitor::mout(0) << "  node  : " << numNode << Command::endline;
+Monitor::mout(0) << "  link  : " << mtNumLink() << Command::endline;
+
+Monitor::mout(0) << Command::endline;
+Monitor::mout(0) << "[Completion level of generating link]" << Command::endline;
+for(int i = 0; i < numThread; ++i)
+{
+std::stringstream buf;
+buf << "  thread" << i+1 << " : " << MakeProgBar(CompleteRate(i)) << "  (" << std::fixed << std::setprecision(2) << 100 * CompleteRate(i) << "%)";
+Monitor::mout(0) << buf.str() << Command::endline;
+}
+
+Monitor::mout(0) << Command::endline;
+Monitor::mout(0) << "[Drawing info]" << Command::endline;
+Monitor::mout(0) << "  pos   : " << drawPos << Command::endline;
+Monitor::mout(0) << "  scale : " << drawScale << Command::endline;
+}
+
+*/
