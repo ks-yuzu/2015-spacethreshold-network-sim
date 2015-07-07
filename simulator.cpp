@@ -66,7 +66,7 @@ void Simulator::WindowResize(int w, int h)
 
 
 //========================================
-//              operator
+//               MainLoop
 //========================================
 
 void Simulator::MainLoop()
@@ -94,6 +94,10 @@ void Simulator::MainLoop()
 }
 
 
+//========================================
+//             初期化関連
+//========================================
+
 void Simulator::Initialize()
 {
 	// 別スレッドで解放
@@ -107,21 +111,25 @@ void Simulator::Initialize()
 }
 
 
-//void Simulator::AppnedNodes(int num)
-//{
-//	numNode += standardNumNode;
-//	pNodes->reserve( numNode );
-//
-//	for(int i = 0; i < num; i++) { pNodes->push_back( new Node() ); }
-//
-////	std::sort(std::begin(*pNodes), std::end(*pNodes), [](Node *n1, Node *n2){ return n1->Activity() < n2->Activity(); });
-//}
-
-
-
+// -------------------- ノード生成 --------------------
+/*
+// 一様分布
 void Simulator::AppnedNodes(int num)
 {
-	constexpr int dev = standardNumNode / 10000;
+	numNode += standardNumNode;
+	pNodes->reserve( numNode );
+
+	for(int i = 0; i < num; i++) { pNodes->push_back( new Node() ); }
+
+//	std::sort(std::begin(*pNodes), std::end(*pNodes), [](Node *n1, Node *n2){ return n1->Activity() < n2->Activity(); });
+}
+*/
+
+
+// ノードをシードを中心とした正規分布させる
+void Simulator::AppnedNodes(int num)
+{
+	constexpr int dev = standardNumNode / 10000; //1万ずつで塊を作る
 
 	numNode += standardNumNode;
 	pNodes->reserve(numNode);
@@ -137,8 +145,12 @@ void Simulator::AppnedNodes(int num)
 
 		for(int j = 0; j < num / dev; ++j)
 		{
-			pNodes->push_back(new Node( Pos(nml(seed.x, sd), nml(seed.y, sd)) ));
-//			pNodes->push_back(new Node( Pos(nml(seed.x, 20000), nml(seed.y, 20000)) ));
+			const auto pos = Pos(
+				static_cast<int>(nml( seed.x, sd )),
+				static_cast<int>(nml( seed.y, sd ))
+			);
+
+			pNodes->push_back( new Node(pos) );
 		}
 	}
 
@@ -147,6 +159,8 @@ void Simulator::AppnedNodes(int num)
 
 
 
+
+// -------------------- リンク生成 --------------------
 
 
 // void Simulator::GenerateLink() で使用
@@ -168,8 +182,9 @@ auto generateLinkThread =
 				}
 			}
 
-			// mutex付きオペレータで途中経過を更新
-			simulator.CompleteRate( idx, (double)std::distance(ipBegin1, ipNode1+1) / std::distance(ipBegin1, ipEnd1) );
+			// 途中経過を更新（mutex付き変数）
+//			simulator.CompleteRate( idx, (double)std::distance(ipBegin1, ipNode1+1) / std::distance(ipBegin1, ipEnd1) );
+			simulator.mtCompleteRate[idx]( (double)std::distance(ipBegin1, ipNode1+1) / std::distance(ipBegin1, ipEnd1) );
 			simulator.mtNumLink += cnt;
 		}
 	};
@@ -193,28 +208,6 @@ void Simulator::GenerateLink()
 	th3.detach();
 	th4.detach();
 }
-
-
-
-void Simulator::DrawGraph()
-{
-	// グラフ設定
-	gnuplot.SetLogScale(); //両対数
-	gnuplot.SetXLabel("degree");
-	gnuplot.SetYLabel("num of vertex");
-
-	static std::vector<int> x(standardNumNode, 0);
-	for(int i = 0; i < standardNumNode; i++) { x[i] = i; }
-
-	std::vector<int> degCount(standardNumNode, 0);
-	for(Node *pNode : *pNodes) { ++degCount[ pNode->Degree() ]; }
-//	for(Node *pNode : *pNodes) { ++degCount[ (int)pNode->Activity() ]; }
-
-//	gnuplot.SetRange(0, 1000, 0, 10000);
-	gnuplot.PlotXY(x, degCount);
-
-}
-
 
 
 void Simulator::ProcInput()
@@ -242,30 +235,53 @@ void Simulator::ProcInput()
 }
 
 
+//========================================
+//       描画処理（コールバック除く）
+//========================================
+
+void Simulator::DrawGraph()
+{
+	// グラフ設定
+	gnuplot.SetLogScale(); //両対数
+	gnuplot.SetXLabel( "degree" );
+	gnuplot.SetYLabel( "num of vertex" );
+
+	static std::vector<int> x( standardNumNode, 0 );
+	for( int i = 0; i < standardNumNode; i++ ) { x[i] = i; }
+
+	std::vector<int> degCount( standardNumNode, 0 );
+	for( Node *pNode : *pNodes ) { ++degCount[pNode->Degree()]; }
+	//	for(Node *pNode : *pNodes) { ++degCount[ (int)pNode->Activity() ]; }
+
+	//	gnuplot.SetRange(0, 1000, 0, 10000);
+	gnuplot.PlotXY( x, degCount );
+
+}
+
 
 void Simulator::MonitorOutput()
 {
 	std::stringstream buf;
 
-	buf << FpsControl::GetInstance().GetInfo()
-		<< Command::endline
-		<< "[Simulation info]" << Command::endline
-		<< "  node  : " << numNode << Command::endline
-		<< "  link  : " << mtNumLink() << Command::endline
-		<< Command::endline
-		<< "[Completion]" << Command::endline;
+	Monitor::mout() << FpsControl::GetInstance().GetInfo()
+					<< Command::endline
+					<< "[Simulation info]" << Command::endline
+					<< "  node  : " << numNode << Command::endline
+					<< "  link  : " << mtNumLink() << Command::endline
+					<< Command::endline
+					<< "[Completion]" << Command::endline;
 
 	for(int i = 0; i < numThread; ++i)
 	{
-		buf << "  thread" << i+1 << " : " << MakeProgBar(CompleteRate(i))
-			<< "  (" << std::fixed << std::setprecision(3) << 100 * CompleteRate(i) << "%)" << Command::endline;
+		Monitor::mout() << "  thread" << i+1 << " : " << MakeProgBar(mtCompleteRate[i]())
+						<< "  (" << std::fixed << std::setprecision(3) << 100 * mtCompleteRate[i]() << "%)" << Command::endline;
 	}
 
-	buf << Command::endline
-		<< "[Drawing info]" << Command::endline
-		<< "  flag  : " << (fGraphicalOut ? "true" : "false") << Command::endline
-		<< "  pos   : " << drawPos << Command::endline
-		<< "  scale : " << drawScale * 100 << "%" << Command::endline;
+	Monitor::mout() << Command::endline
+					<< "[Drawing info]" << Command::endline
+					<< "  flag  : " << (fGraphicalOut ? "true" : "false") << Command::endline
+					<< "  pos   : " << drawPos << Command::endline
+					<< "  scale : " << drawScale * 100 << "%" << Command::endline;
 
 
 	Monitor::mout(0) << buf.str() << Command::endline;
@@ -276,26 +292,26 @@ void Simulator::MonitorOutput()
 
 void Simulator::MonitorOutput()
 {
-Monitor::mout(0) << FpsControl::GetInstance().GetInfo();
+	Monitor::mout(0) << FpsControl::GetInstance().GetInfo();
 
-Monitor::mout(0) << Command::endline;
-Monitor::mout(0) << "[Simulation info]" << Command::endline;
-Monitor::mout(0) << "  node  : " << numNode << Command::endline;
-Monitor::mout(0) << "  link  : " << mtNumLink() << Command::endline;
+	Monitor::mout(0) << Command::endline;
+	Monitor::mout(0) << "[Simulation info]" << Command::endline;
+	Monitor::mout(0) << "  node  : " << numNode << Command::endline;
+	Monitor::mout(0) << "  link  : " << mtNumLink() << Command::endline;
 
-Monitor::mout(0) << Command::endline;
-Monitor::mout(0) << "[Completion level of generating link]" << Command::endline;
-for(int i = 0; i < numThread; ++i)
-{
-std::stringstream buf;
-buf << "  thread" << i+1 << " : " << MakeProgBar(CompleteRate(i)) << "  (" << std::fixed << std::setprecision(2) << 100 * CompleteRate(i) << "%)";
-Monitor::mout(0) << buf.str() << Command::endline;
-}
+	Monitor::mout(0) << Command::endline;
+	Monitor::mout(0) << "[Completion level of generating link]" << Command::endline;
+	for(int i = 0; i < numThread; ++i)
+	{
+		std::stringstream buf;
+		buf << "  thread" << i+1 << " : " << MakeProgBar(CompleteRate(i)) << "  (" << std::fixed << std::setprecision(2) << 100 * CompleteRate(i) << "%)";
+		Monitor::mout(0) << buf.str() << Command::endline;
+	}
 
-Monitor::mout(0) << Command::endline;
-Monitor::mout(0) << "[Drawing info]" << Command::endline;
-Monitor::mout(0) << "  pos   : " << drawPos << Command::endline;
-Monitor::mout(0) << "  scale : " << drawScale << Command::endline;
-}
+	Monitor::mout(0) << Command::endline;
+	Monitor::mout(0) << "[Drawing info]" << Command::endline;
+	Monitor::mout(0) << "  pos   : " << drawPos << Command::endline;
+	Monitor::mout(0) << "  scale : " << drawScale << Command::endline;
+	}
 
 */
