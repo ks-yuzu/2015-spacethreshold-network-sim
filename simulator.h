@@ -28,6 +28,7 @@ class Simulator
 
 		// valriable
 		MutexVal<int> mtNumLink;
+		std::array<MutexVal<double>, numThread> mtCompleteRate;
 
 	private:
 		// variable
