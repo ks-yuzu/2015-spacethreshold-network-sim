@@ -38,7 +38,7 @@ class Draw
 	static void Circle(int cx, int cy, int r, bool fFill)
 	{
 		// •`‰æˆ—
-		const int numVertex = 10;
+		const int numVertex = 6;
 		double vertexes[2*numVertex]; // ‘¬“xd‹‚Å¶”z—ñ
 
 		for(int i = 0; i < numVertex; ++i)
@@ -58,6 +58,17 @@ class Draw
 		glDisable(GLUT_MULTISAMPLE);
 	}
 
+	static void Lines(const int *pVertexes, const int numVertex, const int dim)
+	{
+		glVertexPointer(2, GL_INT, 0, pVertexes);
+
+		glEnable(GLUT_MULTISAMPLE);
+		glMatrixMode(GL_MODELVIEW);
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glDrawArrays(GL_LINES, 0, numVertex);
+		glDisableClientState(GL_VERTEX_ARRAY);
+		glDisable(GLUT_MULTISAMPLE);
+	}
 };
 
 

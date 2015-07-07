@@ -41,14 +41,22 @@ void Simulator::Draw() const
 	// vertex
 	glColor4d(0.4, 0.9, 0.4, 0.2);
 
+	std::vector<int> vertexes;
+	vertexes.reserve(standardNumNode*10);
+
 	for(Node *pNode : *pNodes)
 	{
-		for(auto pNeighbor : pNode->Neighbors())
+		for(const auto pNeighbor : pNode->Neighbors())
 		{
-			//std::lock_guard<std::mutex> lock(*(pNeighbor->pNeighborsMtx));
-			Draw::Line( pNode->GetPos(), pNeighbor->GetPos() );
+			vertexes.push_back(pNode->GetPos().x);
+			vertexes.push_back(pNode->GetPos().y);
+
+			vertexes.push_back(pNeighbor->GetPos().x);
+			vertexes.push_back(pNeighbor->GetPos().y);
 		}
 	}
+
+	Draw::Lines(vertexes.data(), vertexes.size() / 2, 2);
 
 	// node
 	for each (Node *pNode in *pNodes) { pNode->Draw(); }
