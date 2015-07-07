@@ -17,7 +17,7 @@ public:
 	static void AllWindowFlip();
 
 	//ACCESS
-	static Monitor& mout(int idx);
+	static Monitor& mout(int idx = 0);
 
 private:
 	//生成禁止 - インスタンス管理はこのクラス内で行う
