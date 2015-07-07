@@ -21,11 +21,11 @@ void Node::AutoSetActivity()
 //	auto& ur = RandGen::unifi;
 //	activity = ur(minActivity, maxActivity);
 
-//	auto& er = RandGen::exp;
-//	activity = (int)( 100 * er(0.1) );
+	auto& er = RandGen::exp;
+	activity = (int)( 5 * er(0.5) );
 
-	auto& prt = RandGen::prt;
-	activity = prt(4, 10);
+//	auto& prt = RandGen::prt;
+//	activity = prt(4, 10);
 
 //	Log::lout() << activity << Command::endline;
 
@@ -51,8 +51,9 @@ void Node::Draw() const
 
 bool Node::LinkExists(const Node& n1, const Node& n2)//, int debug_idx)
 {
-//	constexpr int threshold = 30;
-	constexpr int threshold = 50; // nml-pos
+//	constexpr int threshold = 30; // uni-pos-dist
+//	constexpr int threshold = 50; // nml-pos-dist 0.1-0.2M node
+	constexpr int threshold = 25; // nml-pos-dist 0.5M node
 
 	auto sum = n1.Activity() * n2.Activity();
 //	sum *= 10;
@@ -68,6 +69,6 @@ bool Node::LinkExists(const Node& n1, const Node& n2)//, int debug_idx)
 
 //	Monitor::mout(debug_idx+1) << sum << Command::endline;
 
-	//	Log::lout() << sum << Command::endline;
+//	Log::lout() << sum << Command::endline;
 	return sum > threshold;
 }
