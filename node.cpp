@@ -54,7 +54,7 @@ bool Node::LinkExists(const Node& n1, const Node& n2)//, int debug_idx)
 //	constexpr int threshold = 30; // uni-pos-dist
 //	constexpr int threshold = 25; // nml-pos-dist 0.5M node
 //	constexpr int threshold = 50; // nml-pos-dist 0.1-0.2M node
-	constexpr int threshold = 10; // nml-pos-dist parete
+	constexpr int threshold = 5; // nml-pos-dist parete
 
 	auto sum = n1.Activity() * n2.Activity();
 //	sum *= 10;
