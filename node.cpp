@@ -42,7 +42,7 @@ void Node::AddNeighbor(Node *neighbor) const
 
 void Node::Draw() const
 {
-	const int radius = static_cast<int>(4 * activity);
+	const int radius = static_cast<int>(4 * sqrt(activity));
 
 	glColor4d(color.r, color.g, color.b, 0.7);
 	Draw::Circle(pos, radius, true);

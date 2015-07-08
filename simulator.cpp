@@ -112,6 +112,7 @@ void Simulator::Initialize()
 	if( pNodes != nullptr ) { Deleter<Node> deleter(pNodes); }
 
 	numNode = 0;
+	mtNumLink(0);
 
 	pNodes = new std::vector<Node *>;
 	AppnedNodes(standardNumNode);
@@ -144,15 +145,16 @@ void Simulator::AppnedNodes(int num)
 
 	for(int i = 0; i < dev; ++i)
 	{
-		auto seed = posGen();
-		auto& nml = RandGen::nml; //³‹K®”—”¶¬Ší
+		Pos seed = posGen();
+
 		int sd = RandGen::unifi(
-			static_cast<int>(standardNumNode * 0.03),
-			static_cast<int>(standardNumNode * 0.10)
+			static_cast<int>(standardNumNode * 0.5),
+			static_cast<int>(standardNumNode * 1)//0.10
 		); //ˆê—l®”—”‚Å•W€•Î·‚ğ¶¬
 
 		for(int j = 0; j < num / dev; ++j)
 		{
+			auto& nml = RandGen::nml; //³‹K®”—”¶¬Ší
 			const auto pos = Pos(
 				static_cast<int>(nml( seed.x, sd )),
 				static_cast<int>(nml( seed.y, sd ))
@@ -251,7 +253,7 @@ void Simulator::ProcInput()
 {
 	Keyboard& kb = Keyboard::GetInstance();
 
-	if( kb('I') == 1 ) { Initialize(); }
+	if( kb('F') && kb('I') == 1 ) { Initialize(); }
 	if( kb('G') == 1 ) { DrawGraph(); }
 	if( kb('T') == 1 ) { fGraphicalOut = !fGraphicalOut; }
 
