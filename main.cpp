@@ -1,4 +1,4 @@
-//#pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
+#pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
 
 #include <iostream>
 #include <gl/glut.h>
@@ -42,11 +42,11 @@ void InitializeGlut(int argc, char *argv[])
 	glEnable(GL_BLEND);
 }
 
-int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
-//int main(int argc, char *argv[])
+//int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
+int main(int argc, char *argv[])
 {
-	int argc = 1;  LPTSTR argv = "dummy";
-	InitializeGlut(argc, &argv);
+//	int argc = 1;  LPTSTR argv = "dummy";
+	InitializeGlut(argc, argv);
 
 //	Log::lout().Init();
 //	Log::lout() << "Log Window" << Command::endline << Command::endline; //ログウィンドウの設定とタイトル

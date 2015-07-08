@@ -25,7 +25,7 @@ class Node
 		virtual ~Node();
 
 	  // constant
-		static const int maxActivity = 70;
+		static const int maxActivity = 50;
 		static const int minActivity = 0;
 
 	  // operator

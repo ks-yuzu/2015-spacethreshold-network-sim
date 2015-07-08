@@ -18,7 +18,7 @@ constexpr Pos windowPos(30, 20);
 
 
 // ----- Simulator -----
-constexpr int standardNumNode = 60000;
+constexpr int standardNumNode = 100000 *3;
 constexpr Pos mapSize(standardNumNode * 3, standardNumNode * 2);
 
 

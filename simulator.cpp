@@ -147,8 +147,8 @@ void Simulator::AppnedNodes(int num)
 		auto seed = posGen();
 		auto& nml = RandGen::nml; //正規整数乱数生成器
 		int sd = RandGen::unifi(
-			static_cast<int>(standardNumNode * 0.08),
-			static_cast<int>(standardNumNode * 0.16)
+			static_cast<int>(standardNumNode * 0.03),
+			static_cast<int>(standardNumNode * 0.10)
 		); //一様整数乱数で標準偏差を生成
 
 		for(int j = 0; j < num / dev; ++j)
@@ -161,10 +161,39 @@ void Simulator::AppnedNodes(int num)
 			pNodes->push_back( new Node(pos) );
 		}
 	}
-
-//	std::sort(std::begin(*pNodes), std::end(*pNodes), [](Node *n1, Node *n2){ return n1->Activity() < n2->Activity(); });
 }
 
+
+//// ノードをシードを中心とした指数分布させる
+//void Simulator::AppnedNodes(int num)
+//{
+//	constexpr int dev = standardNumNode / 1000;
+//
+//	numNode += standardNumNode;
+//	pNodes->reserve(numNode);
+//
+//	for( int i = 0; i < dev; ++i )
+//	{
+//		auto seed = posGen();
+//		auto& exp = RandGen::exp; //指数整数乱数生成器
+//		auto& unifd = RandGen::unifd;
+//
+//		double lambda = RandGen::unifd(0.1, 0.5); //一様乱数でlambdaを生成
+//
+//		for( int j = 0; j < num / dev; ++j )
+//		{
+//			int offsetX = 1000*exp(lambda) * cos(M_PI * unifd(0.01, 2));
+//			int offsetY = 1000*exp(lambda) * sin(M_PI * unifd(0.01, 2));
+//
+//			const auto pos = Pos(
+//				static_cast<int>(seed.x + offsetX),
+//				static_cast<int>(seed.y + offsetY)
+//			);
+//
+//			pNodes->push_back(new Node(pos));
+//		}
+//	}
+//}
 
 
 
@@ -260,9 +289,9 @@ void Simulator::DrawGraph()
 
 	std::vector<int> degCount( standardNumNode, 0 );
 	for( Node *pNode : *pNodes ) { ++degCount[pNode->Degree()]; }
-	//	for(Node *pNode : *pNodes) { ++degCount[ (int)pNode->Activity() ]; }
+//	for(Node *pNode : *pNodes) { ++degCount[ (int)pNode->Activity() ]; }
 
-	//	gnuplot.SetRange(0, 1000, 0, 10000);
+//	gnuplot.SetRange(0, 1000, 0, 10000);
 	gnuplot.PlotXY( x, degCount );
 
 }
@@ -295,36 +324,3 @@ void Simulator::MonitorOutput()
 
 	Monitor::mout(0) << buf.str() << Command::endline;
 }
-
-
-/*
-
-void Simulator::MonitorOutput()
-{
-	std::stringstream buf;
-
-	buf << FpsControl::GetInstance().GetInfo()
-		<< Command::endline
-		<< "[Simulation info]" << Command::endline
-		<< "  node  : " << numNode << Command::endline
-		<< "  link  : " << mtNumLink() << Command::endline
-		<< Command::endline
-		<< "[Completion]" << Command::endline;
-
-	for(int i = 0; i < numThread; ++i)
-	{
-		buf << "  thread" << i+1 << " : " << MakeProgBar(CompleteRate(i))
-			<< "  (" << std::fixed << std::setprecision(3) << 100 * CompleteRate(i) << "%)" << Command::endline;
-	}
-
-	buf << Command::endline
-		<< "[Drawing info]" << Command::endline
-		<< "  flag  : " << (fGraphicalOut ? "true" : "false") << Command::endline
-		<< "  pos   : " << drawPos << Command::endline
-		<< "  scale : " << drawScale * 100 << "%" << Command::endline;
-
-
-	Monitor::mout(0) << buf.str() << Command::endline;
-}
-
-*/

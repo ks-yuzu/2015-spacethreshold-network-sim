@@ -22,7 +22,7 @@ void Node::AutoSetActivity()
 //	activity = ur(minActivity, maxActivity);
 
 	auto& er = RandGen::exp;
-	activity = (int)( 5 * er(0.5) );
+	activity = (int)( er(0.07) );
 
 //	auto& prt = RandGen::prt;
 //	activity = prt(4, 10);
@@ -52,14 +52,15 @@ void Node::Draw() const
 bool Node::LinkExists(const Node& n1, const Node& n2)//, int debug_idx)
 {
 //	constexpr int threshold = 30; // uni-pos-dist
-	constexpr int threshold = 50; // nml-pos-dist 0.1-0.2M node
 //	constexpr int threshold = 25; // nml-pos-dist 0.5M node
+//	constexpr int threshold = 50; // nml-pos-dist 0.1-0.2M node
+	constexpr int threshold = 10; // nml-pos-dist parete
 
 	auto sum = n1.Activity() * n2.Activity();
 //	sum *= 10;
-//	sum /= pow(Pos::distsq(n1.GetPos(), n2.GetPos()), 1.0 / 3);
-	sum *= 80;
-	sum /= pow(Pos::distsq(n1.GetPos(), n2.GetPos()), 1.0 / 2);
+	sum /= pow(Pos::distsq(n1.GetPos(), n2.GetPos()), 1.0 / 3);
+//	sum *= 80;
+//	sum /= pow(Pos::distsq(n1.GetPos(), n2.GetPos()), 1.0 / 2);
 
 //	auto sum = n1.Activity() + n2.Activity();
 //	sum *= 100;
