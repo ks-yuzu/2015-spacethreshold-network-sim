@@ -84,6 +84,8 @@ void Simulator::MainLoop()
 
 	while( fps.SetStartTime(), kb.Update() )
 	{
+		++loopCount;
+
 		// イベント処理
 		glutMainLoopEvent();
 
@@ -149,8 +151,9 @@ void Simulator::AppnedNodes(int num)
 
 		int sd = RandGen::unifi(
 			static_cast<int>(standardNumNode * 0.5),
-			static_cast<int>(standardNumNode * 1)//0.10
+			static_cast<int>(standardNumNode * 2)
 		); //一様整数乱数で標準偏差を生成
+
 
 		for(int j = 0; j < num / dev; ++j)
 		{

@@ -32,6 +32,7 @@ class Simulator
 
 	private:
 		// variable
+		int loopCount = 0;
 		int numNode;
 		int numLink;
 		std::vector<Node *> *pNodes;
