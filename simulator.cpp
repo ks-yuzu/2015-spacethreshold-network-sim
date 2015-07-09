@@ -151,8 +151,9 @@ void Simulator::AppnedNodes(int num)
 
 		int sd = RandGen::unifi(
 			static_cast<int>(standardNumNode * 0.5),
-			static_cast<int>(standardNumNode * 2.5)
+			static_cast<int>(standardNumNode * 2)
 		); //ˆê—l®”—”‚Å•W€•Î·‚ğ¶¬
+
 
 		for(int j = 0; j < num / dev; ++j)
 		{
